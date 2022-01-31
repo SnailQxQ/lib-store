@@ -5,12 +5,16 @@
 
 <mapper namespace="com.turbine.tnd.dao.UserDao">
 
-     <select id="selectBySequence" parameterType="User"  resultType="User">
+     <select id="inquireBySequence" parameterType="User"  resultType="User">
         SELECT userId id,userName FROM user WHERE userName = #{userName} AND sequence = #{sequence}
      </select>
 
-    <select id="selectByPsw" parameterType="User" resultType="User">
+    <select id="inquireByPsw" parameterType="User" resultType="User">
         SELECT userId id,userName FROM user WHERE userName = #{userName} AND password = #{password}
+    </select>
+
+    <select id="inquireByName" parameterType="User" resultType="User">
+        SELECT userId id,userName FROM user WHERE userName = #{userName}
     </select>
 
     <update id="updateUser" parameterType="User">

@@ -14,9 +14,11 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface UserDao {
     //根据用户名和序列号查询
-    User selectBySequence( User user);
+    User inquireBySequence(User user);
     //根据用户名和密码查询
-    User selectByPsw( User user);
+    User inquireByPsw( User user);
     //根据id更新User信息
-    void updateUser(User user);
+    int updateUser(User user);
+    //根据用户名查询用户
+    User inquireByName(String userName);
 }

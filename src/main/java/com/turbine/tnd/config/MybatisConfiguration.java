@@ -9,5 +9,6 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-public class mybatisConfiguration {
+public class MybatisConfiguration {
+
 }

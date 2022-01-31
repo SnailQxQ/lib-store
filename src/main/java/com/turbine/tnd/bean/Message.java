@@ -9,13 +9,20 @@ import lombok.ToString;
  * @date 2022/1/19 16:24
  */
 
-@Data
+
 @ToString
-public class Message {
+@Data
+public class  Message {
     private int code;
     private String message;
     private Object data;
 
 
+
+
+    public void setResultCode(ResultCode result){
+        this.code = result.getCode();
+        this.message = result.getMessage();
+    }
 
 }

@@ -10,3 +10,6 @@ spring:
     username: root
     password: 990508
     url: jdbc:mysql://127.0.0.1:3306/tnd?characterEncoding=UTF-8
+logging:
+  level:
+    com.turbine.*: debug

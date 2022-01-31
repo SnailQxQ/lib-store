@@ -11,13 +11,13 @@ import lombok.ToString;
 @Data
 @ToString
 public class Resource {
-    int id;
-    String name;
+
+    private int id;
     /*unit Mb*/
-    int size;
-    int type_id;
-    String location;
-    /*unique md5 identification for identify file*/
-    String identification;
-    boolean encryption;
+    private long size;
+    private int type_id;
+    private String location;
+    //文件MD5 唯一标识名
+    private String fileName;
+    private ResourceType type;
 }

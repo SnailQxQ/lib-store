@@ -4,12 +4,13 @@ import lombok.Data;
 import lombok.ToString;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description
- * @date 2022/1/19 19:46
+ * @date 2022/1/26 23:21
  */
-@Data
+
 @ToString
+@Data
 public class UserDto {
     private String token;
     private String userName;

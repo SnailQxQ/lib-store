@@ -1,13 +1,11 @@
 package com.turbine.tnd.utils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * @author 邱信强
- * @Description
+ * @author Trubine
+ * @Description Tire 树实现的过滤方式
  * @date 2022/1/23 18:20
  */
 //字符串过滤器，过滤敏感词
@@ -95,9 +93,9 @@ public class StringFilter implements  Filter<String>{
 
 
      public static void main(String[] args) {
-        FilterFactor ff = new FilterFactor();
+         FilterFactor ff = new FilterFactor();
         String content = "sb傻逼sasdfqfw我sbasdqwwefffffaervggagraer";
-         Filter<String> filter = ff.getResource();
+         Filter<String> filter = ff.getResource(FilterFactor.filterOpt.GEN_FILTER);
          System.out.println(content);
          String result = filter.filtration(content);
          System.out.println(result);

@@ -1,5 +1,7 @@
 package com.turbine.tnd.utils;
 
+import org.springframework.stereotype.Component;
+
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 
@@ -9,24 +11,33 @@ import java.lang.reflect.Constructor;
  * @date 2022/1/23 18:54
  */
 //过滤器代理工厂，使用双重校验锁
-@Resource
-public class FilterFactor implements Factory<Filter>{
+@Component
+public class FilterFactor {
 
-   private static volatile StringFilter sfilter;
+   private static volatile Filter filter;
+
+   public enum filterOpt {
+       AC_FILTER("com.turbine.tnd.utils.StringACFilter")
+       ,GEN_FILTER("com.turbine.tnd.utils.StringFilter");
+
+       String clazzName;
+        filterOpt(String stringFilter) {
+            clazzName = stringFilter;
+       }
+   }
 
 
    //DLC
-    @Override
-    public Filter getResource() {
-        if(sfilter == null){
+    public Filter getResource(filterOpt option) {
+        if(filter == null){
             synchronized (FilterFactor.class){
                 //使用动态代理类反射创建对象
-                if(sfilter == null){
+                if(filter == null){
                     try {
-                        Class<?> clazz = Class.forName(StringFilter.class.getName());
+                        Class<?> clazz = Class.forName(option.clazzName);
                         Constructor<?> constructor = clazz.getDeclaredConstructor();
                         constructor.setAccessible(true);
-                        sfilter = (StringFilter) constructor.newInstance();
+                        filter = (Filter) constructor.newInstance();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -34,7 +45,7 @@ public class FilterFactor implements Factory<Filter>{
             }
         }
 
-        return sfilter;
+        return filter;
     }
 
 }
