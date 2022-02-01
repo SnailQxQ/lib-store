@@ -5,7 +5,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description
  * @date 2022/1/19 16:00
  */

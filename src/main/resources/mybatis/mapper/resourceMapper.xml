@@ -12,7 +12,6 @@
                 ,#{size}
                 ,#{type_id}
                 ,#{location}
-
                )
     </insert>
 

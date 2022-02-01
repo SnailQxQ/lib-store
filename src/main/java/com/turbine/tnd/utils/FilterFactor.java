@@ -6,11 +6,10 @@ import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description
  * @date 2022/1/23 18:54
  */
-//过滤器代理工厂，使用双重校验锁
 @Component
 public class FilterFactor {
 

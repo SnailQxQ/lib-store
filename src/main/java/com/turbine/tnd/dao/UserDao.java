@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description
  * @date 2022/1/19 15:11
  */

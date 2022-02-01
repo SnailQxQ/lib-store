@@ -1,7 +1,7 @@
 package com.turbine.tnd.utils;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description
  * @date 2022/1/23 18:17
  */

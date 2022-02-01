@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.ToString;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description Resource 资源类
  * @date 2022/1/19 15:05
  */

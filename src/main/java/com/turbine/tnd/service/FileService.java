@@ -5,7 +5,7 @@ import com.turbine.tnd.bean.ResourceType;
 import java.io.File;
 
 /**
- * @author 邱信强
+ * @author Turbine
  * @Description 文件接口
  * @date 2022/1/24 21:02
  */
