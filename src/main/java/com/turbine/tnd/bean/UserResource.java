@@ -1,6 +1,7 @@
 package com.turbine.tnd.bean;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.sql.Date;
 
@@ -10,11 +11,12 @@ import java.sql.Date;
  * @date 2022/1/29 15:35
  */
 @Data
+@ToString
 public class UserResource {
     //资源id
-    private int id;
+    private Integer id;
     //上传用户id
-    private int u_id;
+    private Integer u_id;
     //文件名 MD5资源标识
     private String fileName;
     //上传时间
@@ -24,10 +26,36 @@ public class UserResource {
     //加密密码
     private String encryptPsw;
     //是否加密
-    private boolean encryption=false;
+    private Boolean encryption = false;
     //删除标记
-    private boolean d_flag=false;
+    private Boolean d_flag = false;
     //是否公开资源
-    private boolean s_flag=false;
+    private Boolean s_flag = false;
+    //父文件id
+    private Integer parentId;
+    //类型id
+    private Integer typeId;
 
+    public UserResource(){}
+
+    public UserResource(int userId, String fileName, String originalName, int parentId, int type_id) {
+        this.u_id = userId;
+        this.fileName = fileName;
+        this.originalName = originalName;
+        this.parentId = parentId;
+        this.typeId = type_id;
+    }
+
+    public void assemble(UserResource uResource) {
+        if(uResource.getU_id() != null)this.u_id = uResource.getU_id();
+        if(uResource.getFileName() != null)this.fileName = uResource.getFileName();
+        if(uResource.getUploadTime() != null)this.uploadTime = uResource.getUploadTime();
+        if(uResource.getOriginalName() != null)this.originalName = uResource.getOriginalName();
+        if(uResource.getEncryptPsw() != null)this.encryptPsw = uResource.getEncryptPsw();
+        if(uResource.getEncryption() != null)this.encryption = uResource.getEncryption();
+        if(uResource.getD_flag() != null)this.d_flag = uResource.getD_flag();
+        if(uResource.getS_flag() != null)this.s_flag = uResource.getS_flag();
+        if(uResource.getParentId() != null)this.parentId = uResource.getParentId();
+        if(uResource.getTypeId() != null)this.typeId = uResource.getTypeId();
+    }
 }

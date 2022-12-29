@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.UserShareResourceDao">
+
+    <update id="modifyShareResource">
+        UPDATE user_share_resource
+        <set>
+            <if test="shareCode != null">
+                ,shareCode=#{shareCode}
+            </if>
+            <if test="u_id != null">
+                ,u_id=#{u_id}
+            </if>
+            <if test="encrypt != null">
+                ,encrypt=#{encrypt}
+            </if>
+            <if test="createTime != null">
+                ,createTime=#{createTime}
+            </if>
+            <if test="survivalTime != null">
+                ,survivalTime=#{survivalTime}
+            </if>
+            <if test="clicks != null">
+                ,clicks=#{clicks}
+            </if>
+            <if test="downloads != null">
+                ,downloads=#{downloads}
+            </if>
+        </set>
+    </update>
+
+    <insert id="addShareResource" parameterType="ShareResource">
+        INSERT INTO user_share_resource(shareCode,u_id,encrypt,createTime,survivalTime,clicks,downloads)
+        VALUES(
+              #{shareCode}
+              ,#{u_id}
+              ,#{encrypt}
+              ,#{createTime}
+              ,#{survivalTime}
+              ,#{clicks}
+              ,#{downloads}
+              )
+    </insert>
+
+</mapper>

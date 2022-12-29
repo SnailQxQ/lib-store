@@ -2,6 +2,7 @@ package com.turbine.tnd.service;
 
 import com.turbine.tnd.bean.Resource;
 import com.turbine.tnd.bean.ResourceType;
+import com.turbine.tnd.bean.UserResource;
 import com.turbine.tnd.config.UploadFileConfig;
 import com.turbine.tnd.dao.ResourceDao;
 import lombok.Data;
@@ -26,10 +27,13 @@ import java.time.LocalDateTime;
 @ConfigurationProperties("file.upload")
 @Data
 @Slf4j
-public class SimpleFileService implements FileService{
+public class SimpleFileService{
 
     //根目录 /static
-    private String fileFolder ;
+    @Value("${file.upload.fileFolder}")
+    String fileFolder ;
+    @Value("${file.upload.baseDir}")
+    String baseDir;
 
     @Autowired
     ResourceDao redao;
@@ -46,7 +50,7 @@ public class SimpleFileService implements FileService{
      * @return
      */
     @Transactional
-    public  boolean upload(MultipartFile multipartFile, String resourceName, int userId,int typeId,String suffix) {
+    public  boolean upload(MultipartFile multipartFile, String resourceName, int userId,int typeId,String suffix,int parentId) {
         boolean flag = true;
         LocalDateTime date = LocalDateTime.now();
         try {
@@ -60,15 +64,12 @@ public class SimpleFileService implements FileService{
 
                 String path = fileFolder+dir+"/"+name.toString()+suffix;
 
-                File temp = new File(fileFolder+dir);
-                File target = new File(dir,name.toString()+suffix);
+                //File temp = new File(fileFolder+dir);
+                File target = new File(baseDir+fileFolder+dir,name.toString()+suffix);
 
-                log.debug("========================temp path: "+temp.getAbsolutePath());
+                //log.debug("========================temp path: "+temp.getAbsolutePath());
                 log.debug("========================target path: "+target.getAbsolutePath());
-                if(!temp.exists()){
-                    temp.mkdirs();
-                    temp.createNewFile();
-                }
+
                 if(!target.exists()){
                     target.mkdirs();
                     target.createNewFile();
@@ -84,10 +85,11 @@ public class SimpleFileService implements FileService{
                 re.setFileName(name);
 
                 redao.addResource(re);
-                redao.addResourceUser(userId,name,resourceName);
+                UserResource ur = new UserResource();
+                redao.addResourceUser(userId,name,resourceName+suffix,parentId,typeId);
                 redao.addReourceType(name.toString(),typeId);
             }else {
-                redao.addResourceUser(userId,name,resourceName);
+                redao.addResourceUser(userId,name,resourceName+suffix,parentId,typeId);
                 log.debug("文件已经存在 MD5: "+name);
             }
 
@@ -103,22 +105,6 @@ public class SimpleFileService implements FileService{
     public boolean hasExist(String name) {
         Resource resource = redao.inquireByName(name);
         return resource != null;
-    }
-
-    @Override
-    public boolean uploadFile(File file) {
-        return false;
-    }
-
-
-    @Override
-    public File downLoadFile(String path) {
-        return null;
-    }
-
-    @Override
-    public boolean isSupport(String fileName) {
-        return false;
     }
 
     //查询文件类型

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.FolderDao">
+    <update id="modifyFolder" parameterType="Folder">
+        UPDATE user_folder 
+        <set>
+            <if test="folderName != null">
+                ,name = #{folderName}
+            </if>
+            <if test="createTime != null">
+                ,createTime = #{createTime}
+            </if>
+            <if test="parentId != null">
+                ,parentId = #{parentId}
+            </if>
+
+            <if test="d_flag != null">
+                ,d_flag = #{d_flag}
+            </if>
+            <if test="s_flag != null">
+                ,s_flag = #{s_flag}
+            </if>
+        </set>
+        WHERE id = #{folderId}
+    </update>
+
+
+    <select id="inquireFolder" resultType="Folder">
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag
+        FROM user_folder WHERE id=#{folderId}
+    </select>
+
+    <delete id="removeFolder" parameterType="Folder">
+        DELETE FROM user_folder WHERE userId=#{userId} AND id=#{folderId}
+    </delete>
+
+</mapper>

@@ -1,17 +1,23 @@
 package com.turbine.tnd;
 
-import com.turbine.tnd.bean.Resource;
-import com.turbine.tnd.bean.User;
+import com.turbine.tnd.bean.*;
+import com.turbine.tnd.dao.FolderDao;
 import com.turbine.tnd.dao.ResourceDao;
 import com.turbine.tnd.dao.UserDao;
+import com.turbine.tnd.dao.UserShareResourceDao;
+import com.turbine.tnd.service.FileService;
+import com.turbine.tnd.service.UserService;
+import com.turbine.tnd.utils.MD5Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -25,9 +31,29 @@ public class test1 {
 
     @Autowired
     UserDao udao;
-
+    @Autowired
+    UserService us;
     @Autowired
     ResourceDao redao;
+    @Autowired
+    FileService fs;
+    @Autowired
+    UserShareResourceDao usrDao;
+    @Autowired
+    public RedisTemplate redisTemplate;
+    @Autowired
+    public FolderDao fdao;
+
+    @Test
+    public void  testRedis(){
+        redisTemplate.opsForValue().set("ntxz","568");
+        System.out.println(redisTemplate.opsForValue().get("ntxz"));
+    }
+
+    @Test
+    public void t1(){
+        fs.removeOverDueTempFile();
+    }
 
     @Test
     public void Test01(){
@@ -83,4 +109,27 @@ public class test1 {
         Resource resource = redao.inquireByName(name);
         System.out.println(resource);
     }
+    //新建文件夹
+    @Test
+    public void test7() {
+        Message message = us.mkdirFolder(0, "admin", "新建文件夹");
+        System.out.println(message);
+    }
+    //查询文件夹
+    @Test
+    public void test8() {
+        List<User> users = udao.inquireById(1);
+        users.forEach(System.out::println);
+        System.out.println("+====================");
+        List<User> users2 = udao.inquireById();
+        users2.forEach(System.out::println);
+
+    }
+
+    @Test
+    public void test9(){
+        System.out.println("==== test9 ====");
+        us.recoverFolder(43,"admin");
+    }
+
 }

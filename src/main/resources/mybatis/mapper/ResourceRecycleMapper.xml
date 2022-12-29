@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.ResourceRecycleDao">
+
+    <!--public int addResourceRecycle(ResourceRecycle rr);
+    public int removeResourceRecycle(ResourceRecycle rr);
+    -->
+
+    <insert id="addResourceRecycle" >
+        INSERT INTO resource_recycle(u_id,resourceId,deleteTime,originalName,parentId,typeId)
+        VALUES(#{u_id},#{resourceId},#{deleteTime},#{originalName},#{parentId},#{typeId})
+    </insert>
+
+    <delete id="removeResourceRecycle">
+        DELETE  FROM resource_recycle WHERE resourceId=#{resourceId} AND u_id=#{u_id}
+    </delete>
+
+    <select id="inquireAll" resultType="ResourceRecycle">
+        SELECT u_id,resourceId,deleteTime,originalName,parentId,typeId
+        FROM resource_recycle
+        WHERE u_id = #{u_id};
+    </select>
+</mapper>

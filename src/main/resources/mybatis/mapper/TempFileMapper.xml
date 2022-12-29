@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.TempFileDao">
+
+    <select id="inquireLastTempFile" resultType="TempFile">
+        SELECT time,fileId,userName FROM tempfile WHERE #{time} > time
+    </select>
+
+    <insert id="addTempFile" parameterType="TempFile">
+        INSERT  INTO tempfile SET time = #{time},fileId = #{fileId},userName = #{userName}
+    </insert>
+
+    <delete id="removeTempFile" parameterType="TempFile">
+        DELETE  FROM tempfile WHERE fileId = #{fileId} AND userName = #{userName}
+    </delete>
+
+</mapper>

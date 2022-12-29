@@ -1,7 +1,7 @@
 package com.turbine.tnd.service;
 
-import com.turbine.tnd.dto.FileUploadRequestDTO;
-import lombok.SneakyThrows;
+import com.turbine.tnd.bean.TempFile;
+import com.turbine.tnd.dto.FileRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.List;
 
 /**
  * @author Turbine
@@ -18,15 +19,16 @@ import java.nio.channels.FileChannel;
  */
 @Slf4j
 @Service("EruptUploadStrategy")
-public class EruptUploadStrategy extends SliceUploadTemplate{
+public class EruptUploadStrategy extends SliceFileTemplate {
+
     @Override
-    public boolean upload(FileUploadRequestDTO param) {
+    public boolean upload(FileRequestDTO param) {
         boolean flag = true;
         MultipartFile file = param.getFile();
         File tempFile = super.createTmpFile(param);
         try {
             file.transferTo(tempFile);
-            System.out.println("设置段："+param.getChuckNum()+"完成！");
+            System.out.println("设置段："+param.getChunkNum()+"完成！");
         } catch (IOException e) {
             e.printStackTrace();
             flag = false;
@@ -42,23 +44,26 @@ public class EruptUploadStrategy extends SliceUploadTemplate{
      * @return
      */
     @Override
-    protected boolean mergeFile(FileUploadRequestDTO param,String uploadPath) {
+    protected String mergeFile(FileRequestDTO param, String uploadPath) {
         log.debug("开始整合文件 ："+param.getFileName());
         boolean flag = true;
-        int n = param.getTotalChuckNum();
-        int idx = param.getFile().getOriginalFilename().lastIndexOf(".");
-        String suffix = param.getFile().getOriginalFilename().substring(idx);
-        String dir = FileUtils.getPath(this.baseDir);
+        int n = param.getTotalChunkNum();
+        int idx = param.getOriginalName().lastIndexOf(".");
+        String suffix = param.getOriginalName().substring(idx);
+        String dir = this.baseDir+FileUtils.getPath(this.fileFolder);
         //写入到 static/。。。。
         String result_path = dir+"/"+param.getFileName()+suffix;
-
         File result = new File(result_path);
         FileChannel channel = null;
         try {
+
             File dirF = new File(dir);
 
             if(!dirF.exists()){
                 dirF.mkdirs();
+            }
+            if(!result.exists()){
+                result.createNewFile();
             }
 
             ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -66,7 +71,8 @@ public class EruptUploadStrategy extends SliceUploadTemplate{
             channel = new FileOutputStream(result,true).getChannel();
             int start = 0;
             for(int i=1 ;i<= n ;i++){
-                String path = this.baseDir+"/"+uploadPath+"/"+param.getFileName()+"&"+i+".tmp";
+
+                String path = super.getTempPath(param.getFileName(),param.getUserName(),i);
                 File temp = new File(path);
                 FileChannel tmpChannel = new FileInputStream(temp).getChannel();
 
@@ -82,24 +88,41 @@ public class EruptUploadStrategy extends SliceUploadTemplate{
             }
             //批量清除临时文件
             for(int i=1 ;i<= n ;i++){
-                String path = this.baseDir+"/"+uploadPath+"/"+param.getFileName()+"&"+i+".tmp";
+                String path = getTempPath(param.getFileName(),param.getUserName(),i);
                 File temp = new File(path);
-                temp.delete();
+                if(temp.exists())temp.delete();
             }
 
 
         }  catch (Exception e) {
             e.printStackTrace();
-            flag = false;
+            result_path = null;
         }finally {
             try {
-                channel.close();
+               if(channel != null) channel.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         // boolean success = renameFile(tmpFile, param.getFileName());
 
-        return flag;
+        return result_path;
+    }
+
+    @Override
+    public void deleteTempFile(FileRequestDTO param) {
+        String tempCofPath = getTempCofPath(param.getFileName(), param.getUserName());
+        File conf = new File(tempCofPath);
+        if(conf.exists()){
+            List<Integer> list = checkFinished(param);
+            for(int chunkNum : list){
+                String tempPath = super.getTempPath(param.getFileName(), param.getUserName(), chunkNum);
+                File tempFile = new File(tempPath);
+                if(tempFile.exists())tempFile.delete();
+            }
+
+            conf.delete();
+            super.tfdao.removeTempFile(new TempFile(param.getFileName(),param.getUserName(),0));
+        }
     }
 }

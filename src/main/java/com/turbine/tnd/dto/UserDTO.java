@@ -11,7 +11,7 @@ import lombok.ToString;
 
 @ToString
 @Data
-public class UserDto {
+public class UserDTO {
     private String token;
     private String userName;
     private String sequence;

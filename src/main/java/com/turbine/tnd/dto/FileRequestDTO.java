@@ -15,22 +15,26 @@ import java.io.File;
  */
 @Data
 @ToString
-public class FileUploadRequestDTO {
+public class FileRequestDTO {
     //每个块的大小
     //@Value("${file.upload.sliceSize}")
-    private int sliceSize;
+    private Integer chunkSize;
     //当前块号
-    int chuckNum;
+    private Integer chunkNum;
     //总块号
-    int totalChuckNum;
+    private Integer totalChunkNum;
     //文件总大小
-    int totalSize;
+    private Long totalSize;
     //根据前端给的uuid文件名来标识是哪个文件
-    String fileName;
+    private String fileName;
+    //文件原始名
+    private String originalName;
     //块文件内容
-    MultipartFile file;
+    private MultipartFile file;
     //上传者
-    String userName;
+    private String userName;
+    //父文件id
+    private Integer parentId;
 
 
 }

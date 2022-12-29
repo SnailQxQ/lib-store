@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.UserResourceDao">
+
+    <update id="modifyResource" parameterType="UserResource">
+        UPDATE user_resource
+        <set>
+            <if test="originalName != null">
+                ,originalName = #{originalName}
+            </if>
+
+            <if test="encryptPsw != null">
+                ,encryptPsw = #{encryptPsw}
+            </if>
+
+            <if test="encryption != null">
+                ,encryption = #{encryption}
+            </if>
+
+            <if test="d_flag != null">
+                ,d_flag = #{d_flag}
+            </if>
+
+            <if test="s_flag != null">
+                ,s_flag = #{s_flag}
+            </if>
+
+            <if test="parentId != null">
+                ,parentId = #{parentId}
+            </if>
+
+        </set>
+
+        WHERE id = #{id}
+
+    </update>
+
+    <delete id="removeResource" parameterType="Folder">
+        DELETE  FROM user_resource WHERE fileName = #{fileName} AND u_id = #{u_id}
+    </delete>
+    <resultMap id="uResource" type="UserResource">
+        <id column="id" property="id"></id>
+        <result column="u_id" property="u_id"></result>
+        <result column="fileName" property="fileName"></result>
+        <result column="uploadTime" property="uploadTime"></result>
+        <result column="originalName" property="originalName"></result>
+        <result column="encryptPsw" property="encryptPsw"></result>
+        <result column="encryption" property="encryption"></result>
+        <result column="d_flag" property="d_flag"></result>
+        <result column="s_flag" property="s_flag"></result>
+        <result column="parentId" property="parentId"></result>
+    </resultMap>
+
+    <select id="inquireUserResourceByName" resultMap="uResource" >
+        SELECT id,u_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
+        FROM user_resource
+        WHERE u_id = #{u_id} AND fileName=#{fileId} AND parentId = #{parentId}
+        <if test="fileName != null">
+            AND originalName = #{fileName}
+        </if>
+    </select>
+
+    <select id="inquireUserResourceById" resultMap="uResource" >
+        SELECT id,u_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
+        FROM user_resource
+        WHERE id=#{fileId}
+    </select>
+
+    <insert id="addUserResource"  keyColumn="id" useGeneratedKeys="true" keyProperty="id" parameterType="UserResource">
+        INSERT INTO user_resource(u_id,fileName,originalName,s_flag,d_flag,encryption,encryptPsw,parentId,typeId)
+        VALUES(#{u_id},#{fileName},#{originalName},#{s_flag},#{d_flag},#{encryption},#{encryptPsw},#{parentId},#{typeId})
+    </insert>
+
+</mapper>

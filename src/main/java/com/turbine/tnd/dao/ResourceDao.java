@@ -2,8 +2,10 @@ package com.turbine.tnd.dao;
 
 import com.turbine.tnd.bean.Resource;
 import com.turbine.tnd.bean.ResourceType;
+import com.turbine.tnd.dto.ResourceDTO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
 /**
  * @author Turbine
  * @Description
@@ -29,7 +31,7 @@ public interface ResourceDao {
      * @param u_id          用户id
      * @param fileName      资源名 uuid
      */
-    void addResourceUser(int u_id,String fileName,String originalName);
+    void addResourceUser(int u_id,String fileName,String originalName,int parentId,int typeId);
 
     /**
      * 根据文件类型来查询类型文件id
@@ -44,4 +46,11 @@ public interface ResourceDao {
      * @return
      */
     Resource inquireByName(String fileName);
+
+    //查询指定用户指定文件夹下的指定资源
+    List<ResourceDTO> inquireUserResourceByParentId(int parentId, int userId,boolean isRecycle);
+
+    ResourceDTO inquireUserResourceByName(int userId,String fileName);
+    //查询是否有该资源
+    int hasResource(Integer userId, String fileName, Integer parentId);
 }

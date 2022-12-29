@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.ResourceDao">
+
+    <insert id="addResource" parameterType="Resource">
+        INSERT INTO resource(fileName,size,type_id,location)
+        VALUES(
+                 #{fileName}
+                ,#{size}
+                ,#{type_id}
+                ,#{location}
+               )
+    </insert>
+
+    <!--table : resource_type -->
+    <insert id="addReourceType">
+        INSERT INTO resource_type(fileName,type_id) VALUES(#{fileName},#{type_id})
+    </insert>
+
+    <!--table : user_resource -->
+    <insert id="addResourceUser">
+        INSERT INTO user_resource(u_id,fileName,originalName,parentId,typeId) VALUES( #{u_id},#{fileName},#{originalName},#{parentId},#{typeId} )
+    </insert>
+
+
+    <select id="inquireType" resultType="ResourceType">
+        SELECT id,type,state FROM filetype WHERE type = #{suffix}
+    </select>
+
+    <select id="inquireTypeById" resultType="ResourceType">
+        SELECT id,type,state FROM filetype WHERE id = #{id}
+    </select>
+
+    
+    <resultMap id="resource" type="Resource">
+        <id column="id"></id>
+        <result column="fileName" property="fileName"></result>
+        <result column="size" property="size"></result>
+        <result column="type_id" property="type_id"></result>
+        <result column="location" property="location"></result>
+        <!--单个对象-->
+        <association property="type"
+                     javaType="ResourceType"
+                     column="type_id"
+                     select="inquireTypeById"/>
+    </resultMap>
+
+    <select id="inquireByName" resultMap="resource" >
+        SELECT * FROM resource WHERE fileName = #{fileName}
+    </select>
+
+    <!--查询类型的内容 -->
+    <select id="inquireTypeContentById" resultType="string">
+        SELECT type FROM filetype WHERE id = #{id}
+    </select>
+    <!--根据md5文件名查询资源的大小-->
+    <select id="inquireSizeByName" resultType="Long">
+        SELECT size FROM resource WHERE fileName = #{fileName}
+    </select>
+    <resultMap id="userResource" type="ResourceDTO">
+        <result column="id" property="id"/>
+        <result column="originalName" property="fileName"></result>
+        <result column="uploadTime" property="createTime"></result>
+        <result column="fileName" property="fileId"></result>
+        <result column="s_flag" property="isShare"></result>
+        <result column="encryption" property="isEncrypt"></result>
+        <association property="fileType"
+                     javaType="String"
+                     column="typeId"
+                     select="inquireTypeContentById"  />
+        <association column="fileName"
+                     property="fileSize"
+                     javaType="Long"
+                     select="inquireSizeByName"/>
+    </resultMap>
+
+    <select id="inquireUserResourceByParentId" resultMap="userResource">
+        SELECT id,originalName,uploadTime,encryption,s_flag,typeId,fileName  FROM user_resource
+        WHERE u_id = #{userId} AND parentId = #{parentId}
+                               AND d_flag=#{isRecycle}
+    </select>
+
+    <select id="inquireUserResourceByName" resultMap="userResource">
+        SELECT originalName,uploadTime,encryption,s_flag,typeId,fileName
+        FROM user_resource WHERE u_id = #{userId} AND fileName = #{fileName}
+    </select>
+
+    <select id="hasResource" resultType="Integer" >
+        SELECT COUNT(id) FROM user_resource
+        WHERE u_id = #{userId} AND fileName = #{fileName} AND parentId = #{parentId}
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.turbine.tnd.dao.UserDao">
+
+     <select id="inquireBySequence" parameterType="User"  resultType="User">
+        SELECT userId id,userName FROM user WHERE userName = #{userName} AND sequence = #{sequence}
+     </select>
+
+    <select id="inquireByPsw" parameterType="User" resultType="User">
+        SELECT userId id,userName FROM user WHERE userName = #{userName} AND password = #{password}
+    </select>
+
+    <select id="inquireByName" parameterType="User" resultType="User">
+        SELECT userId id,userName FROM user WHERE userName = #{userName}
+    </select>
+
+    <update id="updateUser" parameterType="User">
+        UPDATE user
+        <set>
+            <if test="userName != null" >
+                ,userName = #{userName}
+            </if>
+            <if test="password != null">
+                ,password = #{password}
+            </if>
+            <if test="sequence != null">
+                ,sequence = #{sequence}
+            </if>
+        </set>
+         WHERE userId = #{id}
+    </update>
+
+    <!--inquireUserFolders-->
+    <select id="inquireUserFolders" resultType="FolderDTO">
+        SELECT id folderId,name folderName ,createTime FROM user_folder
+        WHERE parentId = #{parentId}
+                AND  userId = #{userId}
+                AND d_flag=#{isRecycle}
+    </select>
+
+    <select id="inquireUserFolderById" resultType="FolderDTO">
+        SELECT id folderId,name folderName ,createTime FROM user_folder WHERE id = #{folderId}
+    </select>
+
+
+    <!--TODO:自动生成主键还有问题 -->
+    <insert id="addUserFolder"  useGeneratedKeys="true" keyColumn="id"  keyProperty="folderId">
+        INSERT INTO user_folder(name,userId,parentId) VALUES(#{folderName},#{userId},#{parentId})
+    </insert>
+
+    <select id="inquireById" resultType="User">
+        SELECT userId id,userName,password,sequence FROM user
+        <where>
+            <if test="userId != null"> userId = #{userId}</if>
+        </where>
+    </select>
+
+   <update id="modifyFolderName" >
+       UPDATE user_folder SET name = #{folderName} WHERE id = #{folderId}
+   </update>
+
+    <update id="modifyFileName" >
+       UPDATE user_resource SET originalName = #{newName} WHERE fileName = #{fileId}
+   </update>
+
+    <select id="inquireFolder" resultType="FolderDTO">
+        SELECT id folderId,name folderName ,createTime FROM user_folder
+        WHERE id = #{folderId}
+    </select>
+</mapper>

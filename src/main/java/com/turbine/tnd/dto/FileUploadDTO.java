@@ -11,11 +11,13 @@ import java.util.List;
  */
 @Data
 public class FileUploadDTO {
-    //已经传输完成的块号
-    int chunkNum;
+    //当前传输的块号块号
+    Integer chunkNum;
     //当前块传输是否完成
-    boolean accomplish;
+    Boolean accomplish;
     //是否所有块都传输完成
-    boolean allSuccess;
+    Boolean allSuccess;
+    //上传完成返回文件对象信息
+    ResourceDTO resource;
 
 }

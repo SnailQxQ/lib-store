@@ -45,4 +45,11 @@ public class MD5Util {
     public static String enryptionByKey(String text, String key) {
         return  enryption(text+key);
     }
+
+    public static void main(String[] args) {
+        System.out.println(saltEnryption("1234567"));
+        System.out.println(saltEnryption("990508"));
+        System.out.println(-Integer.MIN_VALUE);
+        int c  = 0x1;
+    }
 }
