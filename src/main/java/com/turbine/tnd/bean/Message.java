@@ -20,6 +20,7 @@ public class  Message {
 
 
     public Message(){}
+
     public Message(ResultCode result){
         this.code = result.getCode();
         this.message = result.getMessage();

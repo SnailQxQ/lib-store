@@ -15,7 +15,7 @@ import java.util.List;
  * @author Turbine
  * @Description 多文件并发接收并整合
  * @date 2022/1/26 19:35
- * //TODO:NIO 传输数据到一般系统崩了会怎么样
+ * //TODO:NIO 传输数据到一半系统崩了会怎么样
  */
 @Slf4j
 @Service("EruptUploadStrategy")

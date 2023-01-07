@@ -55,7 +55,7 @@ public abstract class SliceFileTemplate implements SliceFileService {
     @Autowired
     UserResourceDao urdao;
     //成功后的资源id
-    Integer resourceId;
+    Integer userResourceId;
     //丢给子类去实现具体的上传方法
     public abstract boolean upload(FileRequestDTO param);
     //整合方法
@@ -74,7 +74,7 @@ public abstract class SliceFileTemplate implements SliceFileService {
             boolean b = checkAndSetUploadProgress(param, uploadDirPath);
             if( b ){
                 User user = udao.inquireByName(param.getUserName());
-                UserResource ur = urdao.inquireUserResourceById(resourceId);
+                UserResource ur = urdao.inquireUserResourceById(userResourceId);
                 ResourceDTO dto = new ResourceDTO(ur);
                 dto.setFileSize(param.getTotalSize());
                 dto.setFileType(param.getOriginalName().substring(param.getOriginalName().lastIndexOf(".")));
@@ -249,14 +249,16 @@ public abstract class SliceFileTemplate implements SliceFileService {
                 re.setSize(param.getTotalSize());
                 re.setLocation(location);
                 re.setType_id(type.getId());
+                //TODO:插入并返回id有问题
+                if(rdao.addResource(re) > 0 ){
 
-                rdao.addResource(re);
-                String originalName =filter.filtration(param.getOriginalName().substring(0,idx));
-                User user = udao.inquireByName(param.getUserName());
-                UserResource ur = new UserResource(user.getId(), param.getFileName(), originalName + suffix, param.getParentId(), type.getId());
-                urdao.addUserResource(ur);
-                resourceId = ur.getId();
-                rdao.addReourceType(param.getFileName(),type.getId());
+                    String originalName =filter.filtration(param.getOriginalName().substring(0,idx));
+                    User user = udao.inquireByName(param.getUserName());
+                    UserResource ur = new UserResource(user.getId(),re.getId(), param.getFileName(), originalName + suffix, param.getParentId(), type.getId());
+                    urdao.addUserResource(ur);
+                    userResourceId = ur.getId();
+                    rdao.addReourceType(param.getFileName(),type.getId());
+                }
             }
 
             return location != null;

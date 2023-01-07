@@ -5,7 +5,7 @@
 
 <mapper namespace="com.turbine.tnd.dao.ResourceDao">
 
-    <insert id="addResource" parameterType="Resource">
+    <insert id="addResource" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO resource(fileName,size,type_id,location)
         VALUES(
                  #{fileName}
@@ -22,7 +22,7 @@
 
     <!--table : user_resource -->
     <insert id="addResourceUser">
-        INSERT INTO user_resource(u_id,fileName,originalName,parentId,typeId) VALUES( #{u_id},#{fileName},#{originalName},#{parentId},#{typeId} )
+        INSERT INTO user_resource(u_id,r_id,fileName,originalName,parentId,typeId) VALUES( #{u_id},#{resourceId},#{fileName},#{originalName},#{parentId},#{typeId} )
     </insert>
 
 
@@ -36,7 +36,7 @@
 
     
     <resultMap id="resource" type="Resource">
-        <id column="id"></id>
+        <result column="id" property="id"></result>
         <result column="fileName" property="fileName"></result>
         <result column="size" property="size"></result>
         <result column="type_id" property="type_id"></result>

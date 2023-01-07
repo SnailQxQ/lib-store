@@ -1,10 +1,8 @@
 package com.turbine.tnd;
 
 import com.turbine.tnd.bean.*;
-import com.turbine.tnd.dao.FolderDao;
-import com.turbine.tnd.dao.ResourceDao;
-import com.turbine.tnd.dao.UserDao;
-import com.turbine.tnd.dao.UserShareResourceDao;
+import com.turbine.tnd.dao.*;
+import com.turbine.tnd.dto.ShareResourceDTO;
 import com.turbine.tnd.service.FileService;
 import com.turbine.tnd.service.UserService;
 import com.turbine.tnd.utils.MD5Util;
@@ -37,12 +35,18 @@ public class test1 {
     ResourceDao redao;
     @Autowired
     FileService fs;
+
+    @Autowired
+    UserResourceDao urdao;
+
     @Autowired
     UserShareResourceDao usrDao;
     @Autowired
     public RedisTemplate redisTemplate;
     @Autowired
     public FolderDao fdao;
+
+
 
     @Test
     public void  testRedis(){
@@ -130,6 +134,11 @@ public class test1 {
     public void test9(){
         System.out.println("==== test9 ====");
         us.recoverFolder(43,"admin");
+    }
+
+    @Test
+    public void test10(){
+        System.out.println(usrDao.inquireShareResourceByUid(1).toString());
     }
 
 }

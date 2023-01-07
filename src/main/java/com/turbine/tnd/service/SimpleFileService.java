@@ -85,11 +85,11 @@ public class SimpleFileService{
                 re.setFileName(name);
 
                 redao.addResource(re);
-                UserResource ur = new UserResource();
-                redao.addResourceUser(userId,name,resourceName+suffix,parentId,typeId);
-                redao.addReourceType(name.toString(),typeId);
+                redao.addResourceUser(userId,re.getId(),name,resourceName+suffix,parentId,typeId);
+                redao.addReourceType(name,typeId);
             }else {
-                redao.addResourceUser(userId,name,resourceName+suffix,parentId,typeId);
+                Resource resource = redao.inquireByName(name);
+                redao.addResourceUser(userId,resource.getId(),name,resourceName+suffix,parentId,typeId);
                 log.debug("文件已经存在 MD5: "+name);
             }
 

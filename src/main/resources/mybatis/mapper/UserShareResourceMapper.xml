@@ -8,14 +8,14 @@
     <update id="modifyShareResource">
         UPDATE user_share_resource
         <set>
-            <if test="shareCode != null">
-                ,shareCode=#{shareCode}
+            <if test="shareName != null">
+                ,shareName=#{shareName}
             </if>
-            <if test="u_id != null">
-                ,u_id=#{u_id}
+            <if test="originalName != null">
+                ,originalName=#{originalName}
             </if>
-            <if test="encrypt != null">
-                ,encrypt=#{encrypt}
+            <if test="fetchCode != null">
+                ,fetchCode=#{fetchCode}
             </if>
             <if test="createTime != null">
                 ,createTime=#{createTime}
@@ -33,16 +33,37 @@
     </update>
 
     <insert id="addShareResource" parameterType="ShareResource">
-        INSERT INTO user_share_resource(shareCode,u_id,encrypt,createTime,survivalTime,clicks,downloads)
+        INSERT INTO user_share_resource(shareName,originalName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads)
         VALUES(
-              #{shareCode}
-              ,#{u_id}
-              ,#{encrypt}
+              #{shareName}
+              ,#{originalName}
+              ,#{userId}
+              ,#{userResourceId}
+              ,#{fetchCode}
               ,#{createTime}
               ,#{survivalTime}
               ,#{clicks}
               ,#{downloads}
               )
     </insert>
+
+    <resultMap id="sResource" type="ShareResource">
+        <result column="id" property="id"/>
+        <result column="originalName" property="originalName"/>
+        <result column="shareName" property="shareName"/>
+        <result column="fetchCode" property="fetchCode"/>
+        <result column="u_id" property="userId"/>
+        <result column="u_r_id" property="userResourceId"/>
+        <result column="createTime" property="createTime"/>
+        <result column="survivalTime" property="survivalTime"/>
+        <result column="clicks" property="clicks"/>
+        <result column="downloads" property="downloads"/>
+    </resultMap>
+    <!--List<ShareResource> inquireShareResourceByUid(int u_id);-->
+    <select id="inquireShareResourceByUid" resultMap="sResource">
+        SELECT id,shareName,originalName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads
+        FROM  user_share_resource
+        WHERE u_id = #{u_id}
+    </select>
 
 </mapper>

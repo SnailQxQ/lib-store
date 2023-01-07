@@ -13,10 +13,12 @@ import java.sql.Date;
 @Data
 @ToString
 public class UserResource {
-    //资源id
+    //用户资源id
     private Integer id;
     //上传用户id
     private Integer u_id;
+    //资源id
+    private Integer resourceId;
     //文件名 MD5资源标识
     private String fileName;
     //上传时间
@@ -38,8 +40,9 @@ public class UserResource {
 
     public UserResource(){}
 
-    public UserResource(int userId, String fileName, String originalName, int parentId, int type_id) {
+    public UserResource(int userId, int resourceId,String fileName, String originalName, int parentId, int type_id) {
         this.u_id = userId;
+        this.resourceId = resourceId;
         this.fileName = fileName;
         this.originalName = originalName;
         this.parentId = parentId;

@@ -2,6 +2,7 @@ package com.turbine.tnd.controller;
 
 import com.turbine.tnd.bean.*;
 import com.turbine.tnd.dto.FileRequestDTO;
+import com.turbine.tnd.dto.ShareResourceDTO;
 import com.turbine.tnd.dto.UserDTO;
 import com.turbine.tnd.service.FileService;
 import com.turbine.tnd.service.UserService;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -134,7 +136,7 @@ public class UserController {
     }
     //查询回收站中的资源文件
     @GetMapping("/user/resource/recycle")
-    public Message inquireRecycleBin(@CookieValue String userName){
+    public Message inquireRecycleResource(@CookieValue String userName){
         return us.inquireRecycleResource(userName);
     }
 
@@ -195,14 +197,17 @@ public class UserController {
      *          model 删除模式 0标记删除，1 物理删除
      * @return
      */
-    @DeleteMapping("/user/resource/file/{parentId}/{resourceId}/{model}")
+    @DeleteMapping("/user/resource/file/{userResourceId}/{model}")
     public Message delUserResouce(@PathVariable Map PathVariableMap ,@CookieValue String userName){
-        String resourceId = (String)PathVariableMap.get("resourceId");
+        String userResourceId = (String)PathVariableMap.get("userResourceId");
         String parentId = (String)PathVariableMap.get("parentId");
         String model = (String)PathVariableMap.get("model");
-        if(resourceId == null || model == null || parentId == null || (!"0".equals(model) && !"1".equals(model)))return new Message(ResultCode.ERROR_400);
+        Message message = new Message(ResultCode.ERROR_500);
 
-        return us.delUserResource(Integer.parseInt(resourceId),Integer.parseInt(model),userName,Integer.parseInt(parentId));
+        if(userResourceId == null || model == null || parentId == null || (!"0".equals(model) && !"1".equals(model)))message.setResultCode(ResultCode.ERROR_400);
+        if(us.delUserResource(Integer.parseInt(userResourceId),Integer.parseInt(model),userName))message.setResultCode(ResultCode.SUCCESS);
+
+        return message;
     }
 
     /**
@@ -236,16 +241,42 @@ public class UserController {
      * 恢复资源
      * @return
      */
-    @PutMapping("/user/resource/file/rc/{resourceId}")
-    public Message recoverResource(@PathVariable Integer resourceId,@CookieValue String userName){
+    @PutMapping("/user/resource/file/rc/{userResourceId}")
+    public Message recoverResource(@PathVariable Integer userResourceId,@CookieValue String userName){
         Message message = new Message(ResultCode.ERROR_500);
-        if(resourceId != null
-                && us.recoverResource(resourceId) )message.setResultCode(ResultCode.SUCCESS);
+        if(userResourceId != null
+                && us.recoverResource(userResourceId) )message.setResultCode(ResultCode.SUCCESS);
 
         return message;
     }
 
 
+
+    //生成分享文件和文件提取码
+    @PostMapping("/user/resource/share")
+    public Message createShareResource(@RequestBody ShareResourceDTO srdto, @CookieValue String userName){
+        Message message = new Message(ResultCode.ERROR_500);
+        String shareId;
+        if(srdto.getResourceId() != null && (shareId = us.createShareResource(srdto,userName) )!= null){
+            message.setResultCode(ResultCode.SUCCESS);
+            message.setData(shareId);
+        }
+        return message;
+    }
+
+    //查询用户分享的资源
+    @GetMapping("/user/resource/share")
+    public Message inquireShareResource(@CookieValue String userName){
+        Message message = new Message(ResultCode.ERROR_500);
+        if(userName != null){
+            List<ShareResourceDTO> shareList = us.inquireShareResource(userName);
+            if(shareList != null){
+                message.setResultCode(ResultCode.SUCCESS);
+                message.setData(shareList);
+            }
+        }
+        return message;
+    }
 
 
 

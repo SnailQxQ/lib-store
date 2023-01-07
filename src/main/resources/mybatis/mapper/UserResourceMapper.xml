@@ -31,19 +31,19 @@
             <if test="parentId != null">
                 ,parentId = #{parentId}
             </if>
-
         </set>
-
         WHERE id = #{id}
 
     </update>
 
     <delete id="removeResource" parameterType="Folder">
-        DELETE  FROM user_resource WHERE fileName = #{fileName} AND u_id = #{u_id}
+        DELETE  FROM user_resource WHERE r_id = #{r_id} AND u_id = #{u_id}
     </delete>
+
     <resultMap id="uResource" type="UserResource">
         <id column="id" property="id"></id>
         <result column="u_id" property="u_id"></result>
+        <result column="r_id" property="resourceId"></result>
         <result column="fileName" property="fileName"></result>
         <result column="uploadTime" property="uploadTime"></result>
         <result column="originalName" property="originalName"></result>
@@ -55,7 +55,7 @@
     </resultMap>
 
     <select id="inquireUserResourceByName" resultMap="uResource" >
-        SELECT id,u_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
+        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
         FROM user_resource
         WHERE u_id = #{u_id} AND fileName=#{fileId} AND parentId = #{parentId}
         <if test="fileName != null">
@@ -64,14 +64,24 @@
     </select>
 
     <select id="inquireUserResourceById" resultMap="uResource" >
-        SELECT id,u_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
+        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
         FROM user_resource
-        WHERE id=#{fileId}
+        WHERE id=#{userResourceId}
+    </select>
+
+    <select id="inquireUserResourceByrid" resultMap="uResource" >
+        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId
+        FROM user_resource
+        WHERE r_id=#{resourceId}
     </select>
 
     <insert id="addUserResource"  keyColumn="id" useGeneratedKeys="true" keyProperty="id" parameterType="UserResource">
-        INSERT INTO user_resource(u_id,fileName,originalName,s_flag,d_flag,encryption,encryptPsw,parentId,typeId)
-        VALUES(#{u_id},#{fileName},#{originalName},#{s_flag},#{d_flag},#{encryption},#{encryptPsw},#{parentId},#{typeId})
+        INSERT INTO user_resource(u_id,r_id,fileName,originalName,s_flag,d_flag,encryption,encryptPsw,parentId,typeId)
+        VALUES(#{u_id},#{resourceId},#{fileName},#{originalName},#{s_flag},#{d_flag},#{encryption},#{encryptPsw},#{parentId},#{typeId})
     </insert>
 
+
+    <select id="countUserResource" resultType="Integer" >
+        SELECT COUNT("id") FROM user_resource WHERE u_id = #{userId} AND r_id = #{resourceId}
+    </select>
 </mapper>

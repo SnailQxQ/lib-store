@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,6 +38,9 @@ public class UserService {
     FolderDao fdao;
     @Autowired
     UserResourceDao urdao;
+    @Autowired
+    UserShareResourceDao usrdao;
+
     @Autowired
     @Qualifier("EruptUploadStrategy")
     SliceFileService supload;
@@ -176,7 +180,7 @@ public class UserService {
             //不同文件夹下也可以创建相同的文件
             UserResource ur = urdao.inquireUserResourceByName(user.getId(), fudto.getFileName(),fudto.getOriginalName(),fudto.getParentId());
             if(ur == null){
-                ur = new UserResource(user.getId(), fudto.getFileName(), fudto.getOriginalName(), fudto.getParentId(), resource.getType_id());
+                ur = new UserResource(user.getId(),resource.getId(),fudto.getFileName(), fudto.getOriginalName(), fudto.getParentId(), resource.getType_id());
                 ur.setUploadTime(new Date(System.currentTimeMillis()));
                 urdao.addUserResource(ur);
             }
@@ -251,17 +255,20 @@ public class UserService {
     }
 
     /**
+     * TODO:抽空改进，这太蠢了
      * 根据资源id 判断用户是否持有该资源
-     * @param resourceId    用户id
+     * @param resourceId    资源id
      * @param userName      用户名
      * @return
      */
     public boolean ResourceIsExist(int resourceId, String userName) {
         boolean flag = false;
 
-        UserResource userResource = urdao.inquireUserResourceById(resourceId);
         User user = udao.inquireByName(userName);
-        if(userResource != null && userResource.getU_id() == user.getId())flag = true;
+        if(user != null){
+            if(urdao.countUserResource(resourceId,user.getId()) > 0 )flag = true;
+        }
+
 
         return flag;
     }
@@ -364,17 +371,21 @@ public class UserService {
     }
 
     /**
-     * @param fileId
+     * 先进行逻辑删除后进行物理删除
+     * @param userResourceId 用户资源id
+     * @param model     删除模式 逻辑删除 0 ，物理删除 1
+     * @param userName
      * @return
      */
-    public Message delUserResource(Integer fileId, int model, String userName,Integer parentId) {
+    @Transactional
+    public boolean delUserResource(Integer userResourceId, int model, String userName) {
         Message message = new Message();
         User user = udao.inquireByName(userName);
         message.setResultCode(ResultCode.ERROR_500);
+        boolean result = false;
 
         if (user != null) {
-
-                UserResource ur =  urdao.inquireUserResourceById(fileId);
+                UserResource ur =  urdao.inquireUserResourceById(userResourceId);
                 ResourceRecycle rr = new ResourceRecycle();
                 rr.setDeleteTime(new Date(System.currentTimeMillis()));
                 rr.setOriginalName(ur.getOriginalName());
@@ -386,16 +397,15 @@ public class UserService {
                 if (model == 0 && ur != null &&  !ur.getD_flag()) {
                     ur.setD_flag(true);
                     if (urdao.modifyResource(ur) > 0 && rrdao.addResourceRecycle(rr) > 0) {
-                        message.setResultCode(ResultCode.SUCCESS);
+                        result = true;
                     }
                 }else if(model == 1){
-
-                    if (rrdao.removeResourceRecycle(rr) > 0 && urdao.removeResource(ur) > 0) message.setResultCode(ResultCode.SUCCESS);
+                    if (rrdao.removeResourceRecycle(rr) > 0 && urdao.removeResource(ur) > 0) result = true;
                 }
 
         }
 
-            return message;
+            return result;
         }
 
     /**
@@ -479,7 +489,8 @@ public class UserService {
                 if (resources != null) {
                     for (ResourceDTO re : resources) {
                         UserResource newRe = new UserResource();
-                        newRe.setFileName(re.getFileId());
+                        newRe.setResourceId(re.getId());
+                        //newRe.setFileName(re.getFileId());
                         newRe.setU_id(userId);
 
                         urdao.removeResource(newRe);
@@ -523,6 +534,7 @@ public class UserService {
 
             return flag;
         }
+
         //恢复资源 如果父文件存在且删除标记为true 则递归重置标记，否则就新建一个父文件夹
        /* public boolean recoverResource(String fileId, String userName,Integer parentId) {
             boolean flag = false;
@@ -535,9 +547,10 @@ public class UserService {
 
             return flag;
         } */
-        public boolean recoverResource(Integer fileId) {
+
+        public boolean recoverResource(Integer userResourceId) {
             boolean flag = false;
-            UserResource ur = urdao.inquireUserResourceById(fileId);
+            UserResource ur = urdao.inquireUserResourceById(userResourceId);
             ur.setD_flag(false);
             flag = recoverResource(ur);
 
@@ -598,6 +611,66 @@ public class UserService {
             return flag;
         }
 
+    /**
+     *
+     * @param srdto
+     * @param userName
+     * @return 生成分享id
+     */
+    //TODO:直接对文件名 二次加密生成 分享文件访问名
+    public String createShareResource(ShareResourceDTO srdto ,String userName ) {
+        String result = null;
+        if( ResourceIsExist(srdto.getResourceId(),userName) ){
+            //提取码
+            String shareName = MD5Util.enryptionByKey(srdto.getOriginalName(), userName);
+            ShareResource sr = new ShareResource();
+            UserResource ur = urdao.inquireUserResourceById(srdto.getUserResourceId());
 
+            sr.setShareName(shareName);
+            sr.setFetchCode(srdto.getFetchCode());
+            sr.setCreateTime(new Date(System.currentTimeMillis()));
+            sr.setOriginalName(ur.getOriginalName());
+            User user = udao.inquireByName(userName);
+            sr.setUserId(user.getId());
+            sr.setOriginalName(srdto.getOriginalName());
+            sr.setSurvivalTime(srdto.getSurvivalTime());
+            sr.setUserResourceId(ur.getId());
 
+            if(usrdao.addShareResource(sr) > 0)result = shareName;
+        }
+        return result;
+    }
+
+    /**
+     *
+     * @param userName
+     * @return 用户已经分享的资源列表
+     */
+    public List<ShareResourceDTO> inquireShareResource(String userName) {
+
+        List<ShareResourceDTO> list = null;
+        User user = udao.inquireByName(userName);
+        if(user != null){
+            List<ShareResource> sr = usrdao.inquireShareResourceByUid(user.getId());
+            if(sr != null && !sr.isEmpty()){
+                list = new ArrayList<>();
+                for(ShareResource entity : sr){
+                    ShareResourceDTO srdto = new ShareResourceDTO();
+                    UserResource ur = urdao.inquireUserResourceById(entity.getUserResourceId());
+                    if(ur != null){
+                        //srdto.setShareResourceId(entity.getId());
+                        srdto.setFetchCode(entity.getFetchCode());
+                        srdto.setOriginalName(entity.getOriginalName());
+                        srdto.setSurvivalTime(entity.getSurvivalTime());
+                        srdto.setUserResourceId(ur.getId());
+                        srdto.setResourceId(ur.getResourceId());
+
+                        list.add(srdto);
+                    }
+                }
+            }
+        }
+
+        return list;
+    }
 }
