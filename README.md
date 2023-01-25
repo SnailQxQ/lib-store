@@ -1,7 +1,7 @@
 # netDisk
 前端分离的网盘项目
 
-基于SpringBoot SSM 
+基于SpringBoot SSM + Mysql
 
 现有功能 
   资源存储、资源分享、资源转存、资源预览、断点续传、敏感词过滤
