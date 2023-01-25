@@ -6,17 +6,25 @@ import com.turbine.tnd.dto.*;
 import com.turbine.tnd.utils.Filter;
 import com.turbine.tnd.utils.FilterFactor;
 import com.turbine.tnd.utils.MD5Util;
+import com.turbine.tnd.utils.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Turbine
@@ -48,6 +56,8 @@ public class UserService {
     @Autowired
     ResourceRecycleDao rrdao;
 
+    @Value("${file.upload.tmpDir}")
+    String tempDir;
     /**
      * 通过记住我的方式登陆就验证登陆序列，否则就验证密码
      * 如果是通过密码登入 则也要更新登入序列sequence
@@ -134,9 +144,6 @@ public class UserService {
         String suffix = originalName.substring(idx);
         String fileName = filter.filtration(originalName.substring(0, idx));
 
-        System.out.println("文件名：" + fileName);
-        System.out.println("文件后缀：" + suffix);
-
         //获取用户id 和类型id
         User user = udao.inquireByName(userName);
         ResourceType type = fs.inquireType(suffix);
@@ -158,7 +165,7 @@ public class UserService {
      */
     public Message sliceUpload(FileRequestDTO fudto) {
         //
-        Message message = new Message();
+        Message message = new Message(ResultCode.ERROR_500);
         Resource resource = null;
         User user = udao.inquireByName(fudto.getUserName());
 
@@ -177,26 +184,27 @@ public class UserService {
             fdto.setAccomplish(true);
             fdto.setAllSuccess(true);
             supload.deleteTempFile(fudto);
-            //不同文件夹下也可以创建相同的文件
-            UserResource ur = urdao.inquireUserResourceByName(user.getId(), fudto.getFileName(),fudto.getOriginalName(),fudto.getParentId());
-            if(ur == null){
-                ur = new UserResource(user.getId(),resource.getId(),fudto.getFileName(), fudto.getOriginalName(), fudto.getParentId(), resource.getType_id());
-                ur.setUploadTime(new Date(System.currentTimeMillis()));
-                urdao.addUserResource(ur);
-            }
+
+            int idx = fudto.getOriginalName().lastIndexOf(".");
+            String originalName = fudto.getOriginalName().substring(0,idx);
+            UserResource ur = new UserResource(user.getId(),resource.getId(),fudto.getFileName(), originalName, fudto.getParentId(), resource.getType_id());
+            ur.setUploadTime(new Date(System.currentTimeMillis()));
+            urdao.addUserResource(ur);
 
             ResourceDTO dto = new ResourceDTO(ur);
-            dto.setFileType( fudto.getOriginalName().substring(fudto.getOriginalName().lastIndexOf(".")) );
+            dto.setFileType( fudto.getOriginalName().substring(idx));
             dto.setFileSize(fudto.getTotalSize());
 
             fdto.setResource(dto);
             log.debug("文件已经在服务器有了！");
             message.setData(fdto);
-        }
-        else {
-
-            message.setResultCode(ResultCode.SUCCESS);
-            message.setData(supload.sliceUpload(fudto));
+        }else {
+            //未上传进行上传
+            FileUploadDTO fdto = supload.sliceUpload(fudto);
+            if(fdto != null){
+                message.setData(fdto);
+                message.setResultCode(ResultCode.SUCCESS);
+            }
         }
 
 
@@ -255,13 +263,12 @@ public class UserService {
     }
 
     /**
-     * TODO:抽空改进，这太蠢了
      * 根据资源id 判断用户是否持有该资源
      * @param resourceId    资源id
      * @param userName      用户名
      * @return
      */
-    public boolean ResourceIsExist(int resourceId, String userName) {
+    public boolean hasResource(int resourceId, String userName) {
         boolean flag = false;
 
         User user = udao.inquireByName(userName);
@@ -271,6 +278,19 @@ public class UserService {
 
 
         return flag;
+    }
+
+    /**
+     * @Description: 判断用户是否持有该资源
+     * @author Turbine
+     * @param
+     * @param userResourceId
+     * @param userId
+     * @return boolean
+     * @date 2023/1/13 12:22
+     */
+    public boolean hasResource(int userResourceId, Integer userId) {
+        return urdao.inquireUserResourceById(userResourceId).getU_id() == userId ;
     }
 
     //创建文件夹
@@ -294,26 +314,171 @@ public class UserService {
     }
 
 
-    public Resource inquireResource(String fileName) {
-        return rdao.inquireByName(fileName);
+    public Resource inquireResource(Integer resourceId) {
+        UserResource userResource = urdao.inquireUserResourceById(resourceId);
+        return rdao.inquireByName(userResource.getFileName());
     }
 
+
+    //查询共享资源 //TODO :区分文件和文件夹 文件夹需要进行压缩传输
+    public void getShareResource(String shareName, String userName, HttpServletResponse resp) throws IOException {
+        ShareResource sr = usrdao.inquireShareResourceBysName(shareName);
+        OutputStream os = resp.getOutputStream();
+
+        if(sr != null && !resourceIsExpire(sr.getCreateTime(),sr.getSurvivalTime()) ){
+            if(sr.getType() == 1){
+                UserResource ur = urdao.inquireUserResourceById(sr.getUserResourceId());
+                if(ur != null){
+                    Resource resource = rdao.inquireByName(ur.getFileName());
+                    File file = new File(resource.getLocation());
+                    int read = 0;
+                    byte[] data = new byte[1024];
+                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+
+                    while((read = bis.read(data)) != -1){
+                        os.write(data,0,read);
+                    }
+
+                    resp.addHeader("Content-Disposition","attchement;filename=" +resource.getFileName()+resource.getType().getType());
+                }
+            }else if(sr.getType() == 0){
+                resp.addHeader("Content-Disposition","attchement;filename=" +MD5Util.randomSaltEnryption(shareName)+".zip");
+                User user = udao.inquireByName(userName);
+                Integer userId = user.getId();
+                getShareFolder(sr,userId,os);
+            }
+        }
+
+    }
+
+    //下载的资源为文件夹形式需要进行压缩操作再发送（保持原有的文件结构）
+    private void getShareFolder(ShareResource sr, Integer userId, OutputStream os) {
+        int folderId = sr.getUserResourceId();
+        List<FolderDTO> folderDTOS = udao.inquireUserFolders(folderId, userId, false);
+
+        UserResource ur = urdao.inquireUserResourceById(sr.getUserResourceId());
+        File zipF = new File(tempDir + File.separator + ur.getOriginalName() + ".zip");
+        try(ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipF)))) {
+            zos.setMethod(ZipOutputStream.DEFLATED);//zip格式
+
+            buildCompressFolder(zos,folderId,userId,"");
+            byte[] data = new byte[1024];
+            int read = 0;
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(zipF));
+            while( (read = bis.read(data) ) != -1){
+                os.write(data,0,read);
+            }
+            zos.closeEntry();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            log.debug("获取分享文件失败："+"getShareFolder");
+            e.printStackTrace();
+        }
+
+    }
+
+    //查询文件并递归构建压缩文件结构
+    private void buildCompressFolder(ZipOutputStream zipOutput,Integer parentId,Integer userId,String dir) throws IOException {
+        List<FolderDTO> folders = udao.inquireUserFolders(parentId, userId, false);
+        List<ResourceDTO> resource = rdao.inquireUserResourceByParentId(parentId, userId, false);
+
+        ZipEntry entry = null;
+        FolderDTO folderDTO = udao.inquireFolder(parentId);
+        //创建当前级目录
+        if(dir.equals("")){
+            dir = folderDTO.getFolderName();
+            //entry = new ZipEntry(folderDTO.getFolderName());
+        }else {
+           dir = dir+File.separator+folderDTO.getFolderName();
+            //entry = new ZipEntry(dir+File.separator+folderDTO.getFolderName());
+        }
+
+        if(resource != null){
+            //zipOutput.putNextEntry(entry);
+            List<File> files = new ArrayList<>();
+            int i=0;
+            for(ResourceDTO e : resource){
+                UserResource ur = urdao.inquireUserResourceById(e.getId());
+                Resource re = rdao.inquireById(ur.getResourceId());
+                File file = new File(re.getLocation());
+
+
+                FileInputStream fis = new FileInputStream(file);
+                //防止同名文件压缩失败 保留原文件名
+                zipOutput.putNextEntry(new ZipEntry(dir+File.separator+(i++)+"_"+ur.getOriginalName()+re.getType().getType()));
+
+                byte[] temp = new byte[1024];
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                int read = 0;
+
+                while((read = bis.read(temp) )!= -1){
+                    zipOutput.write(temp,0,read);
+                }
+
+                bis.close();
+                zipOutput.closeEntry();
+                fis.close();
+            }
+
+            zipOutput.closeEntry();
+        }
+
+
+        if(folders != null){
+            for(FolderDTO f : folders){
+                buildCompressFolder(zipOutput,f.getFolderId(),userId,dir);
+            }
+        }
+
+    }
+
+
+    /**
+     * 判断资源是否已经过期
+     * @param createTime
+     * @param survivalTime  有效时间，单位：分钟
+     * @return
+     */
+    private boolean resourceIsExpire(Timestamp createTime, Integer survivalTime) {
+        long time = createTime.getTime();
+        long now = System.currentTimeMillis();
+
+        return (time+(long)survivalTime*60*1000)-now < 0;
+    }
+
+    public boolean resourceIsExpire(String shareName) {
+        boolean result = true;
+        ShareResource sr = usrdao.inquireShareResourceBysName(shareName);
+        if(sr != null){
+            result = resourceIsExpire(sr.getCreateTime(),sr.getSurvivalTime());
+        }
+
+        return result;
+    }
     //查询分片上传的进度
 
     /**
-     * @param param 文件hashId
-     * @return
+     * @Description: 文件已经未上传则去查询当前块的进度，否则直接返回上传成功
+     * @author Turbine
+     * @param
+     * @param param
+     * @return com.turbine.tnd.bean.Message
+     * @date 2023/1/15 14:34
      */
     public Message inquireSliceProgress(FileRequestDTO param) {
         Message message = new Message(ResultCode.SUCCESS);
 
         if (!fs.hasExist(param.getFileName())) {
             List<Integer> list = supload.checkFinished(param);
-            message.setData(list);
+
+            message.setData(list.stream().mapToInt(Integer::intValue).toArray());
         } else {
             FileUploadDTO fdto = new FileUploadDTO();
             fdto.setAccomplish(true);
             fdto.setAllSuccess(true);
+
+            message.setData(fdto);
         }
 
         return message;
@@ -333,9 +498,12 @@ public class UserService {
         return message;
     }
 
-    //判断用户是否有该文件夹
     public boolean FolderIsExist(int folderId) {
-        return fdao.inquireFolder(folderId) != null ;
+        return fdao.inquireFolderById(folderId) != null ;
+    }
+
+    public boolean hasFolder(int folderId , int userId) {
+        return fdao.inquireFolder(folderId,userId) != null ;
     }
 
     //修改文件夹信息
@@ -350,7 +518,7 @@ public class UserService {
         return message;
     }
 
-    //TODO:同名文件怎么处理
+
     //修改用户资源
     public Message modifyUserResource(UserResource uResource, String userName) {
         Message message = new Message(ResultCode.ERROR_500);
@@ -420,7 +588,7 @@ public class UserService {
             ResourceRecycle rr = new ResourceRecycle();
             User user = udao.inquireByName(userName);
             if(user != null){
-                Folder folder = fdao.inquireFolder(folderId);
+                Folder folder = fdao.inquireFolderById(folderId);
 
                 rr.setResourceId(folder.getFolderId());
                 rr.setOriginalName(folder.getFolderName());
@@ -570,7 +738,7 @@ public class UserService {
             //0为根文件
             if(folderId == 0)return true;
 
-            Folder parentFolder = fdao.inquireFolder(folderId);
+            Folder parentFolder = fdao.inquireFolderById(folderId);
             boolean flag = false;
 
             if (parentFolder != null){
@@ -604,7 +772,7 @@ public class UserService {
             boolean flag = false;
             User user = udao.inquireByName(userName);
             if(user != null){
-                Folder folder = fdao.inquireFolder(folderId);
+                Folder folder = fdao.inquireFolderById(folderId);
                 flag = recoverFolder(folder,user.getId());
             }
 
@@ -617,36 +785,73 @@ public class UserService {
      * @param userName
      * @return 生成分享id
      */
-    //TODO:直接对文件名 二次加密生成 分享文件访问名
     public String createShareResource(ShareResourceDTO srdto ,String userName ) {
         String result = null;
-        if( ResourceIsExist(srdto.getResourceId(),userName) ){
-            //提取码
-            String shareName = MD5Util.enryptionByKey(srdto.getOriginalName(), userName);
+        switch (srdto.getType()) {
+            case 0:
+                result = shareFolder(srdto,userName);
+                break;
+            case 1:
+                result = shareFile(srdto,userName);
+                break;
+
+        }
+        return result;
+    }
+
+    private String shareFolder(ShareResourceDTO srdto, String userName) {
+        String re = null;
+        User user = udao.inquireByName(userName);
+
+        Folder folder = fdao.inquireFolder(srdto.getUserResourceId().intValue(), user.getId());
+        if(folder != null){
+            ShareResource sr = new ShareResource();
+            String shareName = MD5Util.enryptionByKey(srdto.getOriginalName()+srdto.getUserResourceId(), userName);
+
+            sr.setUserId(user.getId());
+            sr.setUserResourceId(srdto.getUserResourceId());
+            sr.setFetchCode(srdto.getFetchCode());
+            sr.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            //sr.setOriginalName(folder.getFolderName());
+            sr.setSurvivalTime(srdto.getSurvivalTime());
+            sr.setShareName(shareName);
+            sr.setType(0);
+            if(usrdao.addShareResource(sr) > 0)re = shareName;
+        }
+
+        return re;
+    }
+
+    private String shareFile(ShareResourceDTO srdto ,String userName){
+        String re = null;
+
+        User user = udao.inquireByName(userName);
+        if( hasResource(srdto.getUserResourceId(),user.getId()) ){
+            //分享资源名
+            String shareName = MD5Util.enryptionByKey(srdto.getOriginalName()+srdto.getUserResourceId(), userName);
             ShareResource sr = new ShareResource();
             UserResource ur = urdao.inquireUserResourceById(srdto.getUserResourceId());
 
             sr.setShareName(shareName);
             sr.setFetchCode(srdto.getFetchCode());
-            sr.setCreateTime(new Date(System.currentTimeMillis()));
-            sr.setOriginalName(ur.getOriginalName());
-            User user = udao.inquireByName(userName);
             sr.setUserId(user.getId());
-            sr.setOriginalName(srdto.getOriginalName());
             sr.setSurvivalTime(srdto.getSurvivalTime());
             sr.setUserResourceId(ur.getId());
+            sr.setType(1);
 
-            if(usrdao.addShareResource(sr) > 0)result = shareName;
+            if(usrdao.addShareResource(sr) > 0)re = shareName;
         }
-        return result;
+
+        return re;
     }
+
 
     /**
      *
      * @param userName
      * @return 用户已经分享的资源列表
      */
-    public List<ShareResourceDTO> inquireShareResource(String userName) {
+    public List<ShareResourceDTO> getShareResource(String userName) {
 
         List<ShareResourceDTO> list = null;
         User user = udao.inquireByName(userName);
@@ -656,21 +861,121 @@ public class UserService {
                 list = new ArrayList<>();
                 for(ShareResource entity : sr){
                     ShareResourceDTO srdto = new ShareResourceDTO();
-                    UserResource ur = urdao.inquireUserResourceById(entity.getUserResourceId());
-                    if(ur != null){
-                        //srdto.setShareResourceId(entity.getId());
-                        srdto.setFetchCode(entity.getFetchCode());
-                        srdto.setOriginalName(entity.getOriginalName());
-                        srdto.setSurvivalTime(entity.getSurvivalTime());
-                        srdto.setUserResourceId(ur.getId());
-                        srdto.setResourceId(ur.getResourceId());
 
-                        list.add(srdto);
+                    if(entity.getType() == 0){
+                        Folder folder = fdao.inquireFolderById(entity.getUserResourceId());
+                        srdto.setType(0);
+                        srdto.setOriginalName(folder.getFolderName());
+                        srdto.setCreateTime(entity.getCreateTime());
+                    }else if(entity.getType() == 1){
+                        UserResource ur = urdao.inquireUserResourceById(entity.getUserResourceId());
+                        if(ur != null){
+                            srdto.setUserResourceId(ur.getId());
+                            srdto.setType(1);
+                            srdto.setCreateTime(entity.getCreateTime());
+                        }
                     }
+                    srdto.setFetchCode(entity.getFetchCode());
+                    srdto.setSurvivalTime(entity.getSurvivalTime());
+                    list.add(srdto);
                 }
             }
         }
 
         return list;
+    }
+
+
+
+    public boolean undoShareResouce(String resourceName, String userName) {
+        boolean result = false;
+        User user = udao.inquireByName(userName);
+        int sr = usrdao.delelteShareResourceByRName(resourceName,user.getId());
+        if(sr > 0)result = true;
+        return result;
+    }
+
+
+    public User getUser(String userName) {
+        return udao.inquireByName(userName);
+    }
+
+    //保存用户资源
+    /**
+     * @Description: 将分享资源进行转存至指定的文件夹内操作
+     * @author Turbine
+     * @param
+     * @param shareName 分享文定位hash id
+     * @param parentId  转存至目的文件父文件id
+     * @param userName    转存至指定用户
+     * @return boolean
+     * @date 2023/1/25 14:24
+     */
+    public boolean saveShareResource(String shareName,Integer parentId,String userName) {
+        boolean flag = false;
+        ShareResource shareResource = usrdao.inquireShareResourceBysName(shareName);
+        User user = udao.inquireByName(userName);
+        Integer userId = user.getId();
+
+        if(shareResource != null){
+            switch (shareResource.getType()){
+                case 0: saveFolder(shareResource.getUserResourceId(), userId, parentId);break;
+                case 1: {
+                    UserResource userResource = urdao.inquireUserResourceById(shareResource.getUserResourceId());
+                    saveFile(userResource, parentId,userId);
+                    break;
+                }
+            }
+            flag = true;
+        }
+
+        return flag;
+    }
+
+    private void saveFile(UserResource resource,Integer parentId,Integer userId) {
+        resource.setU_id(userId);
+        resource.setUploadTime(null);
+        resource.setParentId(parentId);
+        resource.setEncryption(false);
+        resource.setEncryptPsw(null);
+        resource.setS_flag(false);
+
+        urdao.addUserResource(resource);
+    }
+
+
+
+    /**
+     * @Description: 递归转存文件夹资源
+     * @author Turbine
+     * @param
+     * @param folderId      原文件夹id
+     * @param userId        目标用户id
+     * @param parentId
+     * @return void
+     * @date 2023/1/25 14:33
+     */
+    private void saveFolder(Integer folderId,Integer userId,Integer parentId) {
+
+        Folder folder = fdao.inquireFolderById(folderId);
+        int originalU_id = folder.getUserId();
+        folder.setFolderId(null);
+        folder.setUserId(userId);
+        folder.setCreateTime(null);
+        folder.setParentId(parentId);
+        folder.setS_flag(false);
+
+        if(fdao.addFolder(folder) > 0){
+            List<UserResource> resources = urdao.inquireUserResourceByParentId(folderId,originalU_id,false);
+            for(UserResource resource : resources){
+                //在该文件夹下继续存储资源文件
+                saveFile(resource,folder.getFolderId(),userId);
+            }
+            List<FolderDTO> folders = udao.inquireUserFolders(folderId, originalU_id, false);
+            for(FolderDTO f : folders){
+                saveFolder(f.getFolderId(),userId,folder.getFolderId());
+            }
+        }
+
     }
 }

@@ -12,7 +12,7 @@ import java.sql.Date;
  */
 @Data
 public class ResourceDTO {
-    //用户资源id
+    //用户资源id userResourceId
     private Integer id;
     //资源名
     private String fileName;

@@ -11,11 +11,11 @@ import java.sql.Date;
  */
 @Data
 public class Folder {
-    private int folderId;
+    private Integer folderId;
     private Date createTime;
     private String folderName;
-    private int userId;
-    private int parentId;
+    private Integer userId;
+    private Integer parentId;
     //是否删除
     private boolean d_flag;
     //是否共享

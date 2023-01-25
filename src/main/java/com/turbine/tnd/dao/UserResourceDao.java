@@ -28,4 +28,6 @@ public interface UserResourceDao {
     UserResource inquireUserResourceByName(@Param("u_id")int id, @Param("fileId")String fileName, @Param("fileName")String originalName, @Param("parentId")Integer parentId);
 
     int countUserResource(int resourceId, int userId);
+
+    List<UserResource> inquireUserResourceByParentId(Integer parentId, Integer userId, boolean d_flag);
 }

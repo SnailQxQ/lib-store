@@ -60,6 +60,7 @@
     <select id="inquireSizeByName" resultType="Long">
         SELECT size FROM resource WHERE fileName = #{fileName}
     </select>
+
     <resultMap id="userResource" type="ResourceDTO">
         <result column="id" property="id"/>
         <result column="originalName" property="fileName"></result>
@@ -94,5 +95,8 @@
     </select>
 
 
+    <select id="inquireById" resultMap="resource">
+        SELECT * FROM resource WHERE id = #{fileId}
+    </select>
 
 </mapper>

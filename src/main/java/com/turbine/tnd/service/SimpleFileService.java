@@ -64,10 +64,8 @@ public class SimpleFileService{
 
                 String path = fileFolder+dir+"/"+name.toString()+suffix;
 
-                //File temp = new File(fileFolder+dir);
                 File target = new File(baseDir+fileFolder+dir,name.toString()+suffix);
 
-                //log.debug("========================temp path: "+temp.getAbsolutePath());
                 log.debug("========================target path: "+target.getAbsolutePath());
 
                 if(!target.exists()){
@@ -85,11 +83,11 @@ public class SimpleFileService{
                 re.setFileName(name);
 
                 redao.addResource(re);
-                redao.addResourceUser(userId,re.getId(),name,resourceName+suffix,parentId,typeId);
+                redao.addResourceUser(userId,re.getId(),name,resourceName,parentId,typeId);
                 redao.addReourceType(name,typeId);
             }else {
                 Resource resource = redao.inquireByName(name);
-                redao.addResourceUser(userId,resource.getId(),name,resourceName+suffix,parentId,typeId);
+                redao.addResourceUser(userId,resource.getId(),name,resourceName,parentId,typeId);
                 log.debug("文件已经存在 MD5: "+name);
             }
 

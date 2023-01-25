@@ -6,6 +6,7 @@ import com.turbine.tnd.dto.ShareResourceDTO;
 import com.turbine.tnd.dto.UserDTO;
 import com.turbine.tnd.service.FileService;
 import com.turbine.tnd.service.UserService;
+import com.turbine.tnd.utils.ZipUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -14,12 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -106,6 +108,7 @@ public class UserController {
         }
         fudto.setUserName(userName);
 
+
         return us.sliceUpload(fudto);
     }
 
@@ -154,6 +157,8 @@ public class UserController {
         return us.modifyFolder(folder,userName);
     }
 
+    //未使用
+    @Deprecated
     @GetMapping("/user/resource/file/slice/{fileId}")
     public Message sliceDownload(@PathVariable("fileId") String fileId,@RequestBody FileRequestDTO fdto){
         if(fdto == null)return new Message(ResultCode.ERROR_400);
@@ -162,21 +167,22 @@ public class UserController {
         return us.sliceDownload(fdto);
     }
 
-
+    //resourceId 用户资源id
     @PutMapping("/user/resource/file/{resourceId}")
-    public Message modifyUserResource(@PathVariable("resourceId") String fileId, @CookieValue("userName")String userName,@RequestBody UserResource uResource){
-        if(fileId == null )return  new Message(ResultCode.ERROR_400);
+    public Message modifyUserResource(@PathVariable("resourceId") Integer userResourceId, @CookieValue("userName")String userName,@RequestBody UserResource uResource){
+        if(userResourceId == null )return  new Message(ResultCode.ERROR_400);
 
-        uResource.setId(Integer.parseInt(fileId));
+        uResource.setId(userResourceId);
         return us.modifyUserResource(uResource,userName);
     }
 
-    //需要验证此文件资源是否是当前用户可拥有的
-    @GetMapping("/user/resource/file/{fileId}")
-    public ResponseEntity<byte[]> downLoad(@PathVariable("fileId") String fileId){
+    //resourceId 用户资源id
+    @GetMapping("/user/resource/file/{resourceId}")
+    public ResponseEntity<byte[]> downLoadUserFile(@PathVariable("resourceId") Integer userResourceId){
 
         try {
-            Resource resource = us.inquireResource(fileId);
+
+            Resource resource = us.inquireResource(userResourceId);
             File file = new File(resource.getLocation());
             byte[] body = null;
             InputStream is = new FileInputStream(file);
@@ -197,14 +203,13 @@ public class UserController {
      *          model 删除模式 0标记删除，1 物理删除
      * @return
      */
-    @DeleteMapping("/user/resource/file/{userResourceId}/{model}")
+    @DeleteMapping("/user/resource/file/{resourceId}/{model}")
     public Message delUserResouce(@PathVariable Map PathVariableMap ,@CookieValue String userName){
-        String userResourceId = (String)PathVariableMap.get("userResourceId");
-        String parentId = (String)PathVariableMap.get("parentId");
+        String userResourceId = (String)PathVariableMap.get("resourceId");
         String model = (String)PathVariableMap.get("model");
         Message message = new Message(ResultCode.ERROR_500);
 
-        if(userResourceId == null || model == null || parentId == null || (!"0".equals(model) && !"1".equals(model)))message.setResultCode(ResultCode.ERROR_400);
+        if(userResourceId == null || model == null || (!"0".equals(model) && !"1".equals(model)))message.setResultCode(ResultCode.ERROR_400);
         if(us.delUserResource(Integer.parseInt(userResourceId),Integer.parseInt(model),userName))message.setResultCode(ResultCode.SUCCESS);
 
         return message;
@@ -257,7 +262,8 @@ public class UserController {
     public Message createShareResource(@RequestBody ShareResourceDTO srdto, @CookieValue String userName){
         Message message = new Message(ResultCode.ERROR_500);
         String shareId;
-        if(srdto.getResourceId() != null && (shareId = us.createShareResource(srdto,userName) )!= null){
+        if(!srdto.isValid())message.setResultCode(ResultCode.ERROR_400);
+        else if( (shareId = us.createShareResource(srdto,userName) )!= null){
             message.setResultCode(ResultCode.SUCCESS);
             message.setData(shareId);
         }
@@ -269,17 +275,60 @@ public class UserController {
     public Message inquireShareResource(@CookieValue String userName){
         Message message = new Message(ResultCode.ERROR_500);
         if(userName != null){
-            List<ShareResourceDTO> shareList = us.inquireShareResource(userName);
-            if(shareList != null){
-                message.setResultCode(ResultCode.SUCCESS);
-                message.setData(shareList);
-            }
+            List<ShareResourceDTO> shareList = us.getShareResource(userName);
+            message.setResultCode(ResultCode.SUCCESS);
+            message.setData(shareList);
         }
+        return message;
+    }
+    //取消分享
+    @DeleteMapping("/user/resource/share/{resourceName}")
+    public Message undoShareResouce(@PathVariable String resourceName,@CookieValue String userName){
+        Message message = new Message(ResultCode.ERROR_500);
+
+        if(userName != null && us.undoShareResouce(resourceName,userName)){
+            message.setResultCode(ResultCode.SUCCESS);
+        }
+
         return message;
     }
 
 
+    @GetMapping("/user/resource/file/s/{shareName}")
+    public void dowloadShareResouce(@PathVariable String shareName,@CookieValue String userName,HttpServletResponse resp) throws IOException {
+        us.getShareResource(shareName,userName,resp);
+    }
+
+    //检查资源是否过期
+    @GetMapping("/user/resource/file/expire/{shareName}")
+    public Message shareResouceIsExpire(@PathVariable String shareName){
+        Message me = new Message(ResultCode.SUCCESS);
+        me.setData(us.resourceIsExpire(shareName));
+        return me;
+    }
 
 
+    @PutMapping("/user/resource/share/transfer/{shareName}")
+    public Message transferResource(@PathVariable String shareName,Integer parentId,@CookieValue String userName){
+        Message me = new Message(ResultCode.ERROR_500);
+        if(parentId == null || shareName == null)me.setResultCode(ResultCode.ERROR_400);
+        else{
 
+            if(us.saveShareResource(shareName,parentId,userName)) me.setResultCode(ResultCode.SUCCESS);
+        }
+
+        return me;
+    }
+
+    /* @GetMapping("/test/getZip")
+    public void getZip(HttpServletResponse resp) throws IOException {
+        resp.addHeader("Content-Disposition", "attchement;filename=testNewZip.zip");
+        ServletOutputStream os = resp.getOutputStream();
+        List<File> files = new ArrayList<>();
+        File file1 = new File("C:\\Users\\turbine\\Desktop\\tnd.sql");
+        File file2 = new File("C:\\Users\\turbine\\Desktop\\新建文本文档.txt");
+        files.add(file1);
+        files.add(file2);
+        ZipUtils.compressZip(files,os);
+    }*/
 }

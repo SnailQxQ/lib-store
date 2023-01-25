@@ -54,4 +54,6 @@ public interface ResourceDao {
     ResourceDTO inquireUserResourceByName(int userId,String fileName);
     //查询是否有该资源
     int hasResource(Integer userId, String fileName, Integer parentId);
+
+    Resource inquireById(Integer fileId);
 }

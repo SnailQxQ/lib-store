@@ -46,7 +46,6 @@
     </select>
 
 
-    <!--TODO:自动生成主键还有问题 -->
     <insert id="addUserFolder"  useGeneratedKeys="true" keyColumn="id"  keyProperty="folderId">
         INSERT INTO user_folder(name,userId,parentId) VALUES(#{folderName},#{userId},#{parentId})
     </insert>

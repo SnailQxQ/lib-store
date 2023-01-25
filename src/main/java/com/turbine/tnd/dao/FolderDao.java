@@ -12,7 +12,11 @@ import org.apache.ibatis.annotations.Mapper;
 public interface FolderDao {
     int modifyFolder(Folder folder);
 
-    Folder inquireFolder(int folderId);
+    Folder inquireFolderById(int folderId);
+
+    Folder inquireFolder(int folderId,int userId);
 
     int removeFolder(Folder folder);
+
+    int addFolder(Folder folder);
 }

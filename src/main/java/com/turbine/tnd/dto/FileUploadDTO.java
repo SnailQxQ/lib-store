@@ -14,9 +14,9 @@ public class FileUploadDTO {
     //当前传输的块号块号
     Integer chunkNum;
     //当前块传输是否完成
-    Boolean accomplish;
+    Boolean accomplish = false;
     //是否所有块都传输完成
-    Boolean allSuccess;
+    Boolean allSuccess = false;
     //上传完成返回文件对象信息
     ResourceDTO resource;
 

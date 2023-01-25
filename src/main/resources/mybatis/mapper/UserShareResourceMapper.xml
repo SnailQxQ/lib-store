@@ -11,9 +11,6 @@
             <if test="shareName != null">
                 ,shareName=#{shareName}
             </if>
-            <if test="originalName != null">
-                ,originalName=#{originalName}
-            </if>
             <if test="fetchCode != null">
                 ,fetchCode=#{fetchCode}
             </if>
@@ -29,27 +26,28 @@
             <if test="downloads != null">
                 ,downloads=#{downloads}
             </if>
+            <if test="type != null">
+                ,type=#{type}
+            </if>
         </set>
     </update>
 
     <insert id="addShareResource" parameterType="ShareResource">
-        INSERT INTO user_share_resource(shareName,originalName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads)
+        INSERT INTO user_share_resource(shareName,u_id,u_r_id,fetchCode,survivalTime,clicks,downloads,type)
         VALUES(
               #{shareName}
-              ,#{originalName}
               ,#{userId}
               ,#{userResourceId}
               ,#{fetchCode}
-              ,#{createTime}
               ,#{survivalTime}
               ,#{clicks}
               ,#{downloads}
+              ,#{type}
               )
     </insert>
 
     <resultMap id="sResource" type="ShareResource">
         <result column="id" property="id"/>
-        <result column="originalName" property="originalName"/>
         <result column="shareName" property="shareName"/>
         <result column="fetchCode" property="fetchCode"/>
         <result column="u_id" property="userId"/>
@@ -58,12 +56,24 @@
         <result column="survivalTime" property="survivalTime"/>
         <result column="clicks" property="clicks"/>
         <result column="downloads" property="downloads"/>
+        <result column="type" property="type"/>
     </resultMap>
     <!--List<ShareResource> inquireShareResourceByUid(int u_id);-->
     <select id="inquireShareResourceByUid" resultMap="sResource">
-        SELECT id,shareName,originalName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads
+        SELECT id,shareName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads,type
         FROM  user_share_resource
-        WHERE u_id = #{u_id}
+        WHERE u_id = #{userId}
     </select>
+
+    <delete id="delelteShareResourceByRName" >
+        DELETE  FROM user_share_resource WHERE u_id = #{userId} AND shareName = #{shareName}
+    </delete>
+
+    <select id="inquireShareResourceBysName" resultMap="sResource">
+        SELECT id,shareName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads,type
+        FROM  user_share_resource
+        WHERE shareName = #{shareName}
+    </select>
+
 
 </mapper>

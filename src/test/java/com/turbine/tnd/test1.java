@@ -138,7 +138,11 @@ public class test1 {
 
     @Test
     public void test10(){
-        System.out.println(usrDao.inquireShareResourceByUid(1).toString());
+        String shareName =  "32cca5f8079ac8d39de54e72d0a33675";
+        int userId = 1;
+        usrDao.delelteShareResourceByRName(shareName,userId);
+        //UserResource userResource = urdao.inquireUserResourceById(97);
+
     }
 
 }

@@ -28,13 +28,23 @@
     </update>
 
 
-    <select id="inquireFolder" resultType="Folder">
+    <select id="inquireFolderById" resultType="Folder">
         SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag
         FROM user_folder WHERE id=#{folderId}
+    </select>
+
+    <select id="inquireFolder" resultType="Folder">
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag
+        FROM user_folder WHERE id=#{folderId} AND userId=#{userId}
     </select>
 
     <delete id="removeFolder" parameterType="Folder">
         DELETE FROM user_folder WHERE userId=#{userId} AND id=#{folderId}
     </delete>
+
+    <insert id="addFolder" useGeneratedKeys="true" keyColumn="id" keyProperty="folderId" parameterType="Folder">
+        INSERT INTO user_folder(name,userId,parentId,s_flag,d_flag)
+        VALUES(#{folderName},#{userId},#{parentId},#{s_flag},#{d_flag})
+    </insert>
 
 </mapper>

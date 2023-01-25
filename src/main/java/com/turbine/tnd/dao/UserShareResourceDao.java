@@ -18,5 +18,9 @@ public interface UserShareResourceDao {
 
     public int addShareResource(ShareResource sr);
 
-    List<ShareResource> inquireShareResourceByUid(int u_id);
+    List<ShareResource> inquireShareResourceByUid(int userId);
+
+    int delelteShareResourceByRName(String shareName, int userId);
+
+    ShareResource inquireShareResourceBysName(String shareName);
 }

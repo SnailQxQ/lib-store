@@ -37,7 +37,7 @@
     </update>
 
     <delete id="removeResource" parameterType="Folder">
-        DELETE  FROM user_resource WHERE r_id = #{r_id} AND u_id = #{u_id}
+        DELETE  FROM user_resource WHERE r_id = #{resourceId} AND u_id = #{u_id}
     </delete>
 
     <resultMap id="uResource" type="UserResource">
@@ -83,5 +83,11 @@
 
     <select id="countUserResource" resultType="Integer" >
         SELECT COUNT("id") FROM user_resource WHERE u_id = #{userId} AND r_id = #{resourceId}
+    </select>
+
+    <select id="inquireUserResourceByParentId" resultMap="uResource">
+        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,typeId
+        FROM user_resource
+        WHERE parentId = #{parentId} AND u_id = #{userId} AND d_flag = #{d_flag};
     </select>
 </mapper>

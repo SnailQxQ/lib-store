@@ -2,6 +2,7 @@ package com.turbine.tnd.intercepter;
 
 import com.turbine.tnd.bean.Message;
 import com.turbine.tnd.bean.Resource;
+import com.turbine.tnd.bean.User;
 import com.turbine.tnd.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,8 @@ public class fileInterceptor implements HandlerInterceptor {
                 }
             }
 
+            User user = us.getUser(userName);
+
             Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
             String parentId = null;
             //先验证文件夹是否存在
@@ -51,19 +54,12 @@ public class fileInterceptor implements HandlerInterceptor {
                 }
 
             }else if(requestURI.contains("/user/resource/file") ){
-                //获取路径变量
-                String fileName = (String)pathVariables.get("fileId");
-                String resourceId = (String)pathVariables.get("resourceId");
+                //用户资源id
+                String resource_id = (String) pathVariables.get("resourceId");
+                if(resource_id != null){
+                    Integer resourceId = Integer.parseInt(resource_id);
 
-                if(fileName != null && parentId != null){
-                    Resource resource = us.inquireResource(fileName);
-                    if(!us.ResourceIsExist(userName,fileName,Integer.parseInt(parentId)) || resource == null){
-                        flag = false;
-                        response.sendRedirect("/error/resourceNotFound");
-                    }
-                }
-                if(resourceId != null){
-                    if(!us.ResourceIsExist(Integer.parseInt(resourceId),userName)){
+                    if(resourceId != null && !us.hasResource(resourceId,user.getId())){
                         flag = false;
                         response.sendRedirect("/error/resourceNotFound");
                     }
@@ -72,7 +68,7 @@ public class fileInterceptor implements HandlerInterceptor {
             }else if(requestURI.contains("/user/resource/folder")){
                 String  folderId = (String)pathVariables.get("folderId");
                 if(folderId != null){
-                    if(Integer.parseInt(folderId) != 0 &&  !us.FolderIsExist(Integer.parseInt(folderId)) ){
+                    if(Integer.parseInt(folderId) != 0 &&  !us.hasFolder(Integer.parseInt(folderId),user.getId()) ){
                         flag = false;
                         response.sendRedirect("/error/resourceNotFound");
                     }
