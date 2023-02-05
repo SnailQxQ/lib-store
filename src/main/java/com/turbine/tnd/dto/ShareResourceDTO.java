@@ -1,5 +1,6 @@
 package com.turbine.tnd.dto;
 
+import com.turbine.tnd.bean.ShareResource;
 import lombok.Data;
 import lombok.ToString;
 
@@ -18,6 +19,7 @@ public class ShareResourceDTO {
     private Integer userResourceId;
     //资源id 文件或文件夹
     //private Integer resourceId;
+    private String shareName;
     //资源名 or 文件夹名
     private String originalName;
     //提取码
@@ -26,8 +28,18 @@ public class ShareResourceDTO {
     private Timestamp createTime;
     //提取码有效时间，单位分钟
     private Integer survivalTime;
+    //分享链接点击次数
+    private Integer clicks;
+    //分享资源下载次数
+    private Integer downloads;
     //资源类型 0:文件夹 1:文件
     private Integer type;
+
+    public ShareResourceDTO(){}
+
+    public ShareResourceDTO(ShareResource sr) {
+        assemble(sr);
+    }
 
 
     public boolean isValid(){
@@ -41,5 +53,17 @@ public class ShareResourceDTO {
         }
 
         return re;
+    }
+
+    //资源名要查数据库 放在 service层进行装配
+    public void assemble(ShareResource sr){
+        this.userResourceId = sr.getUserResourceId();
+        this.shareName = sr.getShareName();
+        this.fetchCode = sr.getFetchCode();
+        this.createTime = sr.getCreateTime();
+        this.survivalTime = sr.getSurvivalTime();
+        this.clicks = sr.getClicks();
+        this.downloads = sr.getDownloads();
+        this.type = sr.getType();
     }
 }

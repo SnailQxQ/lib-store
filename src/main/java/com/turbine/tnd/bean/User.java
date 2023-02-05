@@ -17,6 +17,11 @@ public class User {
    private String sequence;
 
 
+
+   public boolean isValid(){
+      return userName != null && password != null;
+   }
+
    @Override
    public String toString() {
       return "User{" +
@@ -29,9 +34,5 @@ public class User {
 
    }
 
-   public static void main(String[] args) {
-      int[][] arr = {{1,2,3},{1,2,3},{1,2,3}};
-
-   }
 
 }

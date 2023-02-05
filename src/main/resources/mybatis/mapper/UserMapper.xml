@@ -17,6 +17,11 @@
         SELECT userId id,userName FROM user WHERE userName = #{userName}
     </select>
 
+
+    <insert id="addUser" parameterType="User" keyProperty="id" useGeneratedKeys="true">
+        INSERT  INTO user(userName,password) VALUES(#{userName},#{password});
+    </insert>
+
     <update id="updateUser" parameterType="User">
         UPDATE user
         <set>

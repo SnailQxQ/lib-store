@@ -38,8 +38,7 @@ public interface UserDao {
     List<User> inquireById(@Param("userId")int userId);
     List<User> inquireById();
 
-
     FolderDTO inquireFolder(int folderId);
 
-
+    int addUser(User user);
 }

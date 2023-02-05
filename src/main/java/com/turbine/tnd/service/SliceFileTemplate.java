@@ -9,6 +9,7 @@ import com.turbine.tnd.dto.FileDownLoadDTO;
 import com.turbine.tnd.dto.FileUploadDTO;
 import com.turbine.tnd.dto.FileRequestDTO;
 import com.turbine.tnd.dto.ResourceDTO;
+import com.turbine.tnd.utils.CommandUtils;
 import com.turbine.tnd.utils.Filter;
 import com.turbine.tnd.utils.FilterFactor;
 import lombok.extern.slf4j.Slf4j;
@@ -177,7 +178,7 @@ public abstract class SliceFileTemplate implements SliceFileService {
      */
     public String getTempPath(String fileId,String userName,int chunkNum){
         if(this.uploadDirPath == null)this.uploadDirPath = FileUtils.getPath(tempDir);
-        return baseDir+"/"+uploadDirPath + "/" +fileId+userName+ "&" +chunkNum+".tmp";
+        return baseDir+File.separator+uploadDirPath + File.separator +fileId+userName+ "&" +chunkNum+".tmp";
     }
 
     /**
@@ -249,7 +250,7 @@ public abstract class SliceFileTemplate implements SliceFileService {
                 re.setSize(param.getTotalSize());
                 re.setLocation(location);
                 re.setType_id(type.getId());
-                //TODO:插入并返回id有问题
+
                 if(rdao.addResource(re) > 0 ){
 
                     String originalName =filter.filtration(param.getOriginalName().substring(0,idx));
@@ -258,7 +259,17 @@ public abstract class SliceFileTemplate implements SliceFileService {
                     urdao.addUserResource(ur);
                     userResourceId = ur.getId();
                     rdao.addReourceType(param.getFileName(),type.getId());
+
                 }
+                int i = location.lastIndexOf('.');
+                String target = location.substring(0,i)+File.separator+param.getFileName()+"_out.m3u8";
+                String path = location;
+                if( ".mp4".equals(suffix) ){
+                    new Thread(()->{
+                        CommandUtils.processVideo(path,target);
+                    }).start();
+                }
+
             }
 
             return location != null;

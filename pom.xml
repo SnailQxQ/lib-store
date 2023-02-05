@@ -70,6 +70,12 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
+        <!--ffmpeg 支持 ，m38u-->
+        <!--<dependency>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-all-deps</artifactId>
+            <version>3.1.1</version>
+        </dependency>-->
     </dependencies>
 
     <build>

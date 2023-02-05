@@ -5,6 +5,7 @@ import com.turbine.tnd.bean.ResourceType;
 import com.turbine.tnd.bean.UserResource;
 import com.turbine.tnd.config.UploadFileConfig;
 import com.turbine.tnd.dao.ResourceDao;
+import com.turbine.tnd.utils.CommandUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,13 +61,14 @@ public class SimpleFileService{
             if(!hasExist(name)){
                 System.out.println("文件MD5："+name);
                 //创建按照这个目录创建，传输的时候会自带上设置的前缀 先用临时文件创建来解决
-                String dir = "/"+date.getYear()+"/"+date.getMonth()+"/"+date.getDayOfMonth();
+                String dir = File.separator+date.getYear()+File.separator+date.getMonth()+File.separator+date.getDayOfMonth();
 
-                String path = fileFolder+dir+"/"+name.toString()+suffix;
+                String path = fileFolder+dir+File.separator+name.toString()+ File.separator+name.toString()+suffix;
+                String parent = baseDir+fileFolder+dir+File.separator+name.toString();
 
-                File target = new File(baseDir+fileFolder+dir,name.toString()+suffix);
+                File target = new File(parent,name.toString()+suffix);
 
-                log.debug("========================target path: "+target.getAbsolutePath());
+                //log.debug("========================target path: "+target.getAbsolutePath());
 
                 if(!target.exists()){
                     target.mkdirs();
@@ -85,6 +87,12 @@ public class SimpleFileService{
                 redao.addResource(re);
                 redao.addResourceUser(userId,re.getId(),name,resourceName,parentId,typeId);
                 redao.addReourceType(name,typeId);
+                //若为视频文件则对应进行视频处理
+                if( ".mp4".equals(suffix) ){
+                    new Thread(()->{
+                        CommandUtils.processVideo(baseDir+path,parent+File.separator+name.toString()+"_out.m3u8");
+                    }).start();
+                }
             }else {
                 Resource resource = redao.inquireByName(name);
                 redao.addResourceUser(userId,resource.getId(),name,resourceName,parentId,typeId);

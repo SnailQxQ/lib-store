@@ -52,7 +52,7 @@ public class EruptUploadStrategy extends SliceFileTemplate {
         String suffix = param.getOriginalName().substring(idx);
         String dir = this.baseDir+FileUtils.getPath(this.fileFolder);
         //写入到 static/。。。。
-        String result_path = dir+"/"+param.getFileName()+suffix;
+        String result_path = dir+File.separator+param.getFileName()+suffix;
         File result = new File(result_path);
         FileChannel channel = null;
         try {

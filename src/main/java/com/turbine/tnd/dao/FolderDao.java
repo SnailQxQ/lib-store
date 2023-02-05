@@ -19,4 +19,6 @@ public interface FolderDao {
     int removeFolder(Folder folder);
 
     int addFolder(Folder folder);
+
+    Folder inquireParent(Integer id);
 }

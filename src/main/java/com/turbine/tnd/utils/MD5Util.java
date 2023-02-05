@@ -37,8 +37,8 @@ public class MD5Util {
     }
 
     //生成从ASCII 32到126组成的随机字符串 （包括符号）作为盐值
-    public static String randomSaltEnryption(String userName) {
-       return  enryption( RandomStringUtils.randomAscii(8)+userName);
+    public static String randomSaltEnryption(String content) {
+       return  enryption( RandomStringUtils.randomAscii(8)+content);
     }
 
     //需要key的加密

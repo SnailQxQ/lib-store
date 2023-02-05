@@ -32,6 +32,8 @@ public class fileInterceptor implements HandlerInterceptor {
         String requestURI = request.getRequestURI();
         boolean flag = true;
 
+        if(requestURI.contains("/user/resource/share"))return true;
+
         if(requestURI.contains("/user/resource")){
             Cookie[] cookies = request.getCookies();
             String userName = null;
@@ -56,7 +58,8 @@ public class fileInterceptor implements HandlerInterceptor {
             }else if(requestURI.contains("/user/resource/file") ){
                 //用户资源id
                 String resource_id = (String) pathVariables.get("resourceId");
-                if(resource_id != null){
+                String type = (String) pathVariables.get("type");
+                if(type == null && resource_id != null){
                     Integer resourceId = Integer.parseInt(resource_id);
 
                     if(resourceId != null && !us.hasResource(resourceId,user.getId())){

@@ -17,12 +17,18 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Component
 public class UserInterceptor implements HandlerInterceptor {
+
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Cookie[] cookies = request.getCookies();
         String token = null;
         String userName = null;
         boolean flag = false;
+        String url = request.getRequestURI();
+
+        if(url.contains("/user/resource/share") || url.contains("/user/register"))return true;
+
         if(cookies != null){
             for(Cookie cookie : cookies){
                 if( "token".equals( cookie.getName() ) )token = cookie.getValue();

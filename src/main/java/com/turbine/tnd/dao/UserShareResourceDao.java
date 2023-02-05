@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author Turbine
- * @Description
+ * @Description     用户资源表dao
  * @date 2022/3/28 15:14
  */
 @Mapper
@@ -23,4 +23,13 @@ public interface UserShareResourceDao {
     int delelteShareResourceByRName(String shareName, int userId);
 
     ShareResource inquireShareResourceBysName(String shareName);
+
+    //模糊查询我的分享
+    List<ShareResource> inquireShareResourceBySSName(int userId, String shareName);
+
+    int incrClicks(String shareName);
+
+    int incrDowloads(String shareName);
+
+    int delelteShareResourceByURId(int id);
 }

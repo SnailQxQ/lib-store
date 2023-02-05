@@ -30,4 +30,5 @@ public interface UserResourceDao {
     int countUserResource(int resourceId, int userId);
 
     List<UserResource> inquireUserResourceByParentId(Integer parentId, Integer userId, boolean d_flag);
+
 }

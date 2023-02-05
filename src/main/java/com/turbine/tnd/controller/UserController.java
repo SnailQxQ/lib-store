@@ -2,27 +2,20 @@ package com.turbine.tnd.controller;
 
 import com.turbine.tnd.bean.*;
 import com.turbine.tnd.dto.FileRequestDTO;
+import com.turbine.tnd.dto.RNavigationDTO;
 import com.turbine.tnd.dto.ShareResourceDTO;
 import com.turbine.tnd.dto.UserDTO;
 import com.turbine.tnd.service.FileService;
 import com.turbine.tnd.service.UserService;
-import com.turbine.tnd.utils.ZipUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,6 +33,24 @@ public class UserController {
     @Value("${file.upload.baseDir}")
     String baseDir;
 
+    @GetMapping("/user/register/n/{userName}")
+    public Message nameIsExist(@PathVariable("userName") String userName){
+        boolean exist = us.isExist(userName);
+        Message message = new Message(ResultCode.SUCCESS);
+        message.setData(exist);
+
+        return message;
+    }
+
+    @PostMapping("/user/register")
+    public Message register(@RequestBody User user){
+        Message message = new Message(ResultCode.ERROR_500);
+        if(!user.isValid())message.setResultCode(ResultCode.ERROR_400);
+        else {
+            if(us.addUser(user))message.setResultCode(ResultCode.SUCCESS);
+        }
+        return message;
+    }
 
     @PostMapping("/user/login/{remember}")
     public Message login(@RequestBody User user
@@ -47,8 +58,6 @@ public class UserController {
                         , HttpServletRequest request
                         , HttpServletResponse response
                          ){
-       // System.out.println(user.toString());
-       // System.out.println(remember);
         Message verify = us.verify(user, remember, request);
         if(verify.getCode() == 200){
             Cookie token = new Cookie("token",((UserDTO)verify.getData()).getToken());
@@ -177,27 +186,27 @@ public class UserController {
     }
 
     //resourceId 用户资源id
-    @GetMapping("/user/resource/file/{resourceId}")
-    public ResponseEntity<byte[]> downLoadUserFile(@PathVariable("resourceId") Integer userResourceId){
-
+    @GetMapping("/user/resource/file/{type}/{resourceId}")
+    public void downLoadUserFile(@PathVariable Map map,HttpServletResponse resp,@CookieValue String userName){
+        String type = (String) map.get("type");
+        String userResourceId = (String)map.get("resourceId");
         try {
-
-            Resource resource = us.inquireResource(userResourceId);
-            File file = new File(resource.getLocation());
-            byte[] body = null;
-            InputStream is = new FileInputStream(file);
-            body = new byte[is.available()];
-            is.read(body);
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attchement;filename=" +resource.getFileName()+resource.getType().getType());
-            ResponseEntity<byte[]> entity = new ResponseEntity<byte[]>(body, headers, HttpStatus.OK);
-
-            return entity;
-        } catch (Exception e) {
+            us.getResource(Integer.parseInt(userResourceId),resp,Integer.parseInt(type),userName);
+        } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+
     }
+
+    @GetMapping("/user/resource/folder/status/{folderId}")
+    public Message getFolderIsEmpty(@PathVariable("folderId") Integer folderId,@CookieValue String userName){
+
+        boolean re = us.getFolderIsEmpty(folderId,userName);
+        Message message = new Message(ResultCode.SUCCESS);
+        message.setData(re);
+        return message;
+    }
+
     /**
      * @param： fileId资源id
      *          model 删除模式 0标记删除，1 物理删除
@@ -272,13 +281,44 @@ public class UserController {
 
     //查询用户分享的资源
     @GetMapping("/user/resource/share")
-    public Message inquireShareResource(@CookieValue String userName){
+    public Message inquireShareResource(@CookieValue(required=false) String userName,@RequestParam(required=false) String name,
+                                        @RequestParam("type") Integer type){
         Message message = new Message(ResultCode.ERROR_500);
-        if(userName != null){
-            List<ShareResourceDTO> shareList = us.getShareResource(userName);
-            message.setResultCode(ResultCode.SUCCESS);
-            message.setData(shareList);
+
+        Object data = null;
+        switch (type){
+            case 0:{
+                //查询当前用户的全部资源
+                if(userName == null){
+                    message.setResultCode(ResultCode.ERROR_401);
+                    return message;
+                }
+                else data  = us.getShareResource(userName);
+                break;
+            }
+            case 1:{
+                //查询指定用户资源
+                if(name != null)data = us.getOneShareResource(name);
+                else message.setResultCode(ResultCode.ERROR_400);
+                break;
+            }
+            case 2:{
+                //模糊查询指定用户资源
+                if(userName == null){
+                    message.setResultCode(ResultCode.ERROR_401);
+                    return message;
+                }
+                if(name != null)data = us.getSimiliarityShareResource(userName,name);
+                else message.setResultCode(ResultCode.ERROR_400);
+
+                break;
+            }
         }
+
+        message.setData(data);
+        message.setResultCode(ResultCode.SUCCESS);
+
+
         return message;
     }
     //取消分享
@@ -295,8 +335,8 @@ public class UserController {
 
 
     @GetMapping("/user/resource/file/s/{shareName}")
-    public void dowloadShareResouce(@PathVariable String shareName,@CookieValue String userName,HttpServletResponse resp) throws IOException {
-        us.getShareResource(shareName,userName,resp);
+    public void dowloadShareResouce(@PathVariable String shareName,HttpServletResponse resp) throws IOException {
+        us.getShareResource(shareName,resp);
     }
 
     //检查资源是否过期
@@ -331,4 +371,18 @@ public class UserController {
         files.add(file2);
         ZipUtils.compressZip(files,os);
     }*/
+
+
+
+    @GetMapping("/user/resource/location/{folderId}")
+    public Message getLocation(@PathVariable Integer folderId, @CookieValue String userName){
+        Message message = new Message(ResultCode.ERROR_500);
+        RNavigationDTO data = us.getRLocation(folderId,userName);
+        if(data != null){
+            message.setResultCode(ResultCode.SUCCESS);
+            message.setData(data);
+        }else message.setResultCode(ResultCode.ERROR_404);
+
+        return message;
+    }
 }
