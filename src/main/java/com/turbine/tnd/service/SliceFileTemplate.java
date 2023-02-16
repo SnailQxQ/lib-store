@@ -12,6 +12,7 @@ import com.turbine.tnd.dto.ResourceDTO;
 import com.turbine.tnd.utils.CommandUtils;
 import com.turbine.tnd.utils.Filter;
 import com.turbine.tnd.utils.FilterFactor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -231,6 +232,7 @@ public abstract class SliceFileTemplate implements SliceFileService {
     }
 
     //保存文件信息数据到数据库,完成的话就将原文件进改名并存储信息到数据库
+    @SneakyThrows
     @Transactional
     protected boolean SaveFile(FileRequestDTO param, File configFile, String uploadDirPath, byte isComplete) {
         if(isComplete == Byte.MAX_VALUE){

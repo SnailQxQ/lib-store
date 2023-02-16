@@ -20,7 +20,8 @@ public class Folder {
     private boolean d_flag;
     //是否共享
     private  boolean s_flag;
-
+    //是否为收藏资源
+    private Boolean collect = false;
 
     public  Folder(){}
 

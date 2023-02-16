@@ -14,7 +14,7 @@
     </select>
 
     <select id="inquireByName" parameterType="User" resultType="User">
-        SELECT userId id,userName FROM user WHERE userName = #{userName}
+        SELECT userId id,userName,profile,intro FROM user WHERE userName = #{userName}
     </select>
 
 
@@ -34,6 +34,12 @@
             <if test="sequence != null">
                 ,sequence = #{sequence}
             </if>
+            <if test="profile != null">
+                ,profile = #{profile}
+            </if>
+            <if test="intro != null">
+                ,intro = #{intro}
+            </if>
         </set>
          WHERE userId = #{id}
     </update>
@@ -44,6 +50,7 @@
         WHERE parentId = #{parentId}
                 AND  userId = #{userId}
                 AND d_flag=#{isRecycle}
+        <if test="isCollect != null">AND collect = #{isCollect}</if>
     </select>
 
     <select id="inquireUserFolderById" resultType="FolderDTO">
@@ -74,4 +81,8 @@
         SELECT id folderId,name folderName ,createTime FROM user_folder
         WHERE id = #{folderId}
     </select>
+
+
+
+
 </mapper>

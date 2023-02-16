@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.turbine.tnd.dao.PublicResourceDao">
+    <resultMap id="resource" type="PublicResource">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"/>
+        <result column="intro" property="intro"/>
+        <result column="u_r_id" property="userResourceId"/>
+        <result column="type" property="type"/>
+        <result column="views" property="views"/>
+        <result column="collectNum" property="collectNum"/>
+        <result column="u_id" property="userId"/>
+
+    </resultMap>
+
+    <insert id="addPublicResource" parameterType="PublicResource" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO resource_public (id,name,intro,u_r_id,type,views,collectNum,u_id)
+        VALUES(#{id},#{name},#{intro},#{userResourceId},#{type},#{views},#{collectNum},#{userId})
+   </insert>
+
+    <select id="inquirePublicResourceById" resultMap="resource">
+       SELECT id,name,intro,u_r_id,type,views,collectNum,u_id FROM resource_public WHERE id=#{id}
+    </select>
+
+    <delete id="removeResourceById" >
+        DELETE  FROM resource_public WHERE id = #{id}
+    </delete>
+
+
+    <select id="inquireUserPublicResource" resultMap="resource">
+        SELECT id,name,intro,u_r_id,type,views,collectNum,u_id FROM resource_public WHERE u_id=#{userId}
+    </select>
+
+    <select id="inquireLikePublicResource" resultMap="resource">
+        SELECT id,name,intro,u_r_id,type,views,collectNum,u_id FROM resource_public WHERE name LIKE #{name} LIMIT #{start},#{size}
+    </select>
+
+    <select id="inquireAllPublicResource" resultMap="resource">
+        SELECT id,name,intro,u_r_id,type,views,collectNum,u_id FROM resource_public LIMIT #{start},#{size}
+    </select>
+
+    <update id="modifyPublicResource" parameterType="PublicResource">
+        UPDATE resource_public
+        <set>
+            <if test="name != null"> name = #{name} </if>
+            <if test="intro != null"> intro = #{intro} </if>
+            <if test="userResourceId != null"> u_r_id = #{userResourceId} </if>
+            <if test="type != null"> name = #{type} </if>
+            <if test="views != null"> name = #{views} </if>
+            <if test="collectNum != null"> name = #{collectNum} </if>
+            <if test="userId != null"> name = #{userId} </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="incrCollectNum" >
+        UPDATE  resource_public
+        SET collectNum = collectNum + 1
+        WHERE id = #{id}
+    </update>
+</mapper>

@@ -11,10 +11,12 @@ import lombok.ToString;
 @Data
 @ToString
 public class User {
-   private int id;
+   private Integer id;
    private String userName;
    private String password;
    private String sequence;
+   private Object profile;
+   private String intro;
 
 
 

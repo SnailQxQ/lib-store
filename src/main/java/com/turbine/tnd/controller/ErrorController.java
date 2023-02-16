@@ -3,10 +3,7 @@ package com.turbine.tnd.controller;
 import com.turbine.tnd.bean.Message;
 import com.turbine.tnd.bean.ResultCode;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Turbine
@@ -17,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ErrorController {
 
-    @GetMapping("/error/tokenError")
+    @RequestMapping("/error/tokenError")
     public Message errorTokenHandle(){
         return new Message(ResultCode.ERROR_401);
     }
 
-    @GetMapping("/error/resourceNotFound")
+    @RequestMapping("/error/resourceNotFound")
     public Message resourceNotFound(){
         return new Message(ResultCode.ERROR_404);
     }

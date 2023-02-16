@@ -1,9 +1,13 @@
 package com.turbine.tnd.utils;
 
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Stream;
 
 /**
  * @author Trubine
@@ -14,7 +18,7 @@ import java.util.Queue;
 //AC自动机
 //当前模式串后缀和fail指针指向的模式串部分前缀相同
 public class StringACFilter implements  Filter<String>{
-    private static final String ignore = " &-=_";
+    private static final String ignore = " &-=_ ";
     //根节点fail 是null
     private static Node ROOT = new Node();
     private static Node parent = ROOT;
@@ -23,20 +27,34 @@ public class StringACFilter implements  Filter<String>{
 
 
     static {
+        //初始化生成Tire 树、
+        InputStream is = StringACFilter.class.getResourceAsStream("/static/key.txt");
+        String[] lexicon;
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while((line = reader.readLine()) !=  null)builder.append(line+"|");
 
-       String[] lexicon = {"ash","shex","bcd","sha"};
-       initTree(lexicon);
+            lexicon = builder.toString().split("\\|");
+            initTree(lexicon);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
     //插入字符串到Tire
     private static void insert(String word){
-      char[] chars = word.toCharArray();
+      char[] chars = word.trim().toCharArray();
 
       Node node = ROOT;
 
       for(int i=0 ;i<chars.length ;i++){
-
+        if(chars[i] == '\uFEFF')continue;
         if( node.children.containsKey(chars[i]) ){
          //已有
             node = node.children.get(chars[i]);
@@ -105,37 +123,46 @@ public class StringACFilter implements  Filter<String>{
             node = ROOT;
             StringBuilder temp = new StringBuilder();
             int fail=0;
+            boolean flag = false;//匹配表示，解决已经匹配了一部分但是最后失败了要回退最后那个失败的字符重新匹配
             while(i < n && node != null){
+
 
                 if(ignore.contains(chars[i]+"")){
                     temp.append(chars[i++]);
+                    fail++;
                     continue;
                 }
-                //当前node 匹配的是i-1
-                if(node.isEnd){
-                    //匹配成功就要把开头没有匹配上的n个加入答案
-                    String s = temp.toString();
-                    if(fail != 0)builder.append(s.substring(0,fail));
-                    builder.append("#");
-                    //添加完后清空temp
-                    temp = temp.delete(0,temp.length());
-                    node = ROOT;//匹配上了重置状态
-                }
+                temp.append(chars[i]);
                 if(node.children.containsKey(chars[i])){
                     node = node.children.get(chars[i]);
+                    flag = true;
+                    //出现敏感词的情况 ：当前node 匹配的是i-1
+                    if(node.isEnd){
+                        //匹配成功就要把开头没有匹配上的n个加入答案
+                        String s = temp.toString();
+                        if(fail != 0)builder.append(s.substring(0,fail));
+                        builder.append("*");
+                        //添加完后清空temp
+                        temp = temp.delete(0,temp.length());
+                        node = ROOT;//匹配上了重置状态
+                        fail=0;
+                    }
                 }else{
                     //记录失败的次数很关键，失败次数意味着开头的 fail 个字符是不匹配的
                     node = node.fail;
                     //刚匹配完一次失败转向不计算
                     if(temp.length() != 0)fail++;
+                    if(flag){
+                        i--;
+                        temp.deleteCharAt(temp.length()-1);
+                        flag = !flag;
+                    }
                 }
-                //保存可能需要保留的那些串
-                temp.append(chars[i]);
+
                 i++;
             }
 
-            if(node != null && node.isEnd) builder.append("#");
-            else builder.append(temp.toString());
+            builder.append(temp.toString());//不是敏感词
         }
 
        return builder.toString();
@@ -157,7 +184,7 @@ public class StringACFilter implements  Filter<String>{
      public static void main(String[] args) {
          StringACFilter ff = new StringACFilter();
          //String content = "ashexshexsha";//预估*ex**
-         String content = "---a- -sh =ex===shexsha";//预估*ex**
+         String content = "a片1239yin荡kjkl18禁测试内容测试内容";
          System.out.println(ff.filtration(content));
 
      }

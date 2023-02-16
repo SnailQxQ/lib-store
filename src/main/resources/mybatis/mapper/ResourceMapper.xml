@@ -68,6 +68,7 @@
         <result column="fileName" property="fileId"></result>
         <result column="s_flag" property="isShare"></result>
         <result column="encryption" property="isEncrypt"></result>
+        <result column="showImage" property="showImage"></result>
         <association property="fileType"
                      javaType="String"
                      column="typeId"
@@ -79,10 +80,12 @@
     </resultMap>
 
     <select id="inquireUserResourceByParentId" resultMap="userResource">
-        SELECT id,originalName,uploadTime,encryption,s_flag,typeId,fileName  FROM user_resource
+        SELECT id,originalName,uploadTime,encryption,s_flag,typeId,fileName,showImage  FROM user_resource
         WHERE u_id = #{userId} AND parentId = #{parentId}
                                AND d_flag=#{isRecycle}
+        <if test="isCollect != null">AND collect = #{isCollect}</if>
     </select>
+
 
     <select id="inquireUserResourceByName" resultMap="userResource">
         SELECT originalName,uploadTime,encryption,s_flag,typeId,fileName

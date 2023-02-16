@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.turbine.tnd.dao.SubResourceDao">
+
+    <resultMap id="sub_resource" type="SubResource">
+        <id column="id" property="id"></id>
+        <result column="u_id" property="userId"></result>
+        <result column="p_r_id" property="publicResourceId"></result>
+        <result column="d_flag" property="isD_flag"></result>
+    </resultMap>
+
+    <insert id="addSubResource" parameterType="SubResource">
+        INSERT  INTO resource_subscribe (u_id,p_r_id,d_flag) VALUES (#{userId},#{publicResourceId},#{isD_flag})
+    </insert>
+
+    <update id="modifySubResource" parameterType="SubResource">
+        UPDATE resource_subscribe
+        <set>
+            <if test="userId != null">
+                ,u_id = #{userId}
+            </if>
+            <if test="publicResourceId != null">
+                ,p_r_id = #{publicResourceId}
+            </if>
+            <if test="isD_flag != null">
+                ,d_flag = #{isD_flag}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <!-- id,u_id userId,p_r_id publicResourceId,d_flag -->
+    <select id="inquireSubResource" resultMap="sub_resource">
+        SELECT id,u_id,p_r_id,d_flag FROM resource_subscribe WHERE u_id = #{userId}
+    </select>
+
+
+    <select id="inquireSubResourceByPId" resultMap="sub_resource">
+        SELECT id,u_id,p_r_id,d_flag FROM resource_subscribe
+        WHERE p_r_id = #{publicResourceId}
+    </select>
+
+    <select id="inquireOwnSubResource" resultMap="sub_resource">
+        SELECT id,u_id,p_r_id,d_flag FROM resource_subscribe
+        WHERE p_r_id = #{publicResourceId} AND u_id = #{userId}
+    </select>
+
+
+    <delete id="removeSubResource" >
+        DELETE  FROM resource_subscribe WHERE id = #{id}
+    </delete>
+</mapper>

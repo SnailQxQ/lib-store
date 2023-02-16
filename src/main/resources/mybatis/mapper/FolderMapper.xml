@@ -23,18 +23,21 @@
             <if test="s_flag != null">
                 ,s_flag = #{s_flag}
             </if>
+            <if test="collect != null">
+                ,collect = #{collect}
+            </if>
         </set>
         WHERE id = #{folderId}
     </update>
 
 
     <select id="inquireFolderById" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE id=#{folderId}
     </select>
 
     <select id="inquireFolder" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE id=#{folderId} AND userId=#{userId}
     </select>
 
@@ -43,13 +46,13 @@
     </delete>
 
     <insert id="addFolder" useGeneratedKeys="true" keyColumn="id" keyProperty="folderId" parameterType="Folder">
-        INSERT INTO user_folder(name,userId,parentId,s_flag,d_flag)
-        VALUES(#{folderName},#{userId},#{parentId},#{s_flag},#{d_flag})
+        INSERT INTO user_folder(name,userId,parentId,s_flag,d_flag,collect)
+        VALUES(#{folderName},#{userId},#{parentId},#{s_flag},#{d_flag},#{collect})
     </insert>
 
 
     <select id="inquireParent" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE parentId = #{id}
     </select>
 </mapper>

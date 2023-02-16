@@ -35,7 +35,8 @@ public class FileRequestDTO {
     private String userName;
     //父文件id
     private Integer parentId;
-
+    //缩略图
+    private MultipartFile showImage;
 
 }
 

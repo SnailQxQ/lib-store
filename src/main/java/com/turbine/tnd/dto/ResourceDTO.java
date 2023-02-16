@@ -28,6 +28,8 @@ public class ResourceDTO {
     private String fileId;
     //文件大小
     private Long fileSize;
+    //缩略图
+    private Object showImage;
 
     public ResourceDTO(){};
 
@@ -38,5 +40,6 @@ public class ResourceDTO {
         if(ur.getEncryption() != null)this.isEncrypt = ur.getEncryption();
         if(ur.getUploadTime() != null)this.createTime = ur.getUploadTime();
         if(ur.getFileName() != null)this.fileId = ur.getFileName();
+        if(ur.getShowImage() != null)this.showImage = ur.getShowImage();
     }
 }

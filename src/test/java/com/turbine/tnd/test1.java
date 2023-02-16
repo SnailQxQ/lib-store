@@ -2,6 +2,7 @@ package com.turbine.tnd;
 
 import com.turbine.tnd.bean.*;
 import com.turbine.tnd.dao.*;
+import com.turbine.tnd.dto.PublicResourceDTO;
 import com.turbine.tnd.dto.RNavigationDTO;
 import com.turbine.tnd.dto.ShareResourceDTO;
 import com.turbine.tnd.service.FileService;
@@ -117,12 +118,7 @@ public class test1 {
         System.out.println(resource);
     }
 
-    //新建文件夹
-    @Test
-    public void test7() {
-        Message message = us.mkdirFolder(0, "admin", "新建文件夹");
-        System.out.println(message);
-    }
+
 
     //查询文件夹
     @Test
@@ -138,7 +134,6 @@ public class test1 {
     @Test
     public void test9() {
         System.out.println("==== test9 ====");
-        us.recoverFolder(43, "admin");
     }
 
     @Test
@@ -172,13 +167,4 @@ public class test1 {
     }
 
 
-    @Test
-    public void test2() {
-       // RNavigationDTO s = us.getRLocation(17, "admin");
-
-        //System.out.println(s.toString());
-
-        boolean admin = us.getFolderIsEmpty(19, "admin");
-        System.out.println(admin);
-    }
 }

@@ -49,7 +49,7 @@ public interface ResourceDao {
     Resource inquireByName(String fileName);
 
     //查询指定用户指定文件夹下的指定资源
-    List<ResourceDTO> inquireUserResourceByParentId(int parentId, int userId,boolean isRecycle);
+    List<ResourceDTO> inquireUserResourceByParentId(int parentId, int userId,Boolean isRecycle,Boolean isCollect);
 
     ResourceDTO inquireUserResourceByName(int userId,String fileName);
     //查询是否有该资源

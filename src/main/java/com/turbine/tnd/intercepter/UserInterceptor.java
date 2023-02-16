@@ -27,7 +27,9 @@ public class UserInterceptor implements HandlerInterceptor {
         boolean flag = false;
         String url = request.getRequestURI();
 
-        if(url.contains("/user/resource/share") || url.contains("/user/register"))return true;
+        if(url.contains("/user/resource/share")
+            || url.contains("/user/register")
+            || url.contains("/user/resource/file/expire"))return true;
 
         if(cookies != null){
             for(Cookie cookie : cookies){
@@ -45,7 +47,7 @@ public class UserInterceptor implements HandlerInterceptor {
             }
         }
         if(!flag) {
-            response.sendRedirect("/error/tokenError");
+            request.getRequestDispatcher("/error/tokenError").forward(request,response);
         }
 
         return flag;
