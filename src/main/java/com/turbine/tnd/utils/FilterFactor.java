@@ -20,7 +20,7 @@ public class FilterFactor {
        ,GEN_FILTER("com.turbine.tnd.utils.StringFilter");
 
        String clazzName;
-        filterOpt(String stringFilter) {
+       filterOpt(String stringFilter) {
             clazzName = stringFilter;
        }
    }

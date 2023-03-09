@@ -140,6 +140,18 @@ public abstract class SliceFileTemplate implements SliceFileService {
         File configFile = new File(getTempCofPath(param.getFileName(),param.getUserName()));
         List<Integer> result = new ArrayList<>();
 
+        if(!configFile.exists()){
+            try {
+                File file = new File(configFile.getParent());
+                file.mkdirs();
+                configFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
+
         try ( RandomAccessFile accessFile = new RandomAccessFile(configFile, "r") ){
             if(configFile.exists()){
                 byte[] bytes = FileUtils.readFileToByteArry(accessFile);
@@ -231,7 +243,18 @@ public abstract class SliceFileTemplate implements SliceFileService {
         return isOk;
     }
 
-    //保存文件信息数据到数据库,完成的话就将原文件进改名并存储信息到数据库
+    //保存文件信息数据到数据库,完成的话就将原文件进改名并存储信息到数据库，
+    /**
+     * @Description:
+     * @author Turbine
+     * @param
+     * @param param
+     * @param configFile    文件请求的dto
+     * @param uploadDirPath 上文文件目录
+     * @param isComplete    标识是否完成
+     * @return boolean
+     * @date 2023/2/18 17:03
+     */
     @SneakyThrows
     @Transactional
     protected boolean SaveFile(FileRequestDTO param, File configFile, String uploadDirPath, byte isComplete) {
@@ -263,10 +286,11 @@ public abstract class SliceFileTemplate implements SliceFileService {
                     rdao.addReourceType(param.getFileName(),type.getId());
 
                 }
-                int i = location.lastIndexOf('.');
-                String target = location.substring(0,i)+File.separator+param.getFileName()+"_out.m3u8";
+                int i = location.lastIndexOf('/');
+                String target = location.substring(0,i)+File.separator+param.getFileName()+".m3u8";
                 String path = location;
                 if( ".mp4".equals(suffix) ){
+                    //文件第一次传输要时间，传输完成后才进行分片
                     new Thread(()->{
                         CommandUtils.processVideo(path,target);
                     }).start();

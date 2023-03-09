@@ -50,18 +50,14 @@ public class EruptUploadStrategy extends SliceFileTemplate {
         int idx = param.getOriginalName().lastIndexOf(".");
         String suffix = param.getOriginalName().substring(idx);
         String dir = this.baseDir+FileUtils.getPath(this.fileFolder);
-        //写入到 static/。。。。
-        String result_path = dir+File.separator+param.getFileName()+suffix;
+        //写入到 static/。。。。方便后续分片都写到一个以该资源命名的文件夹中
+        String result_path = dir+File.separator+param.getFileName()+File.separator+param.getFileName()+suffix;
         File result = new File(result_path);
         FileChannel channel = null;
         try {
 
-            File dirF = new File(dir);
-
-            if(!dirF.exists()){
-                dirF.mkdirs();
-            }
             if(!result.exists()){
+                new File(result.getParent()).mkdirs();
                 result.createNewFile();
             }
 

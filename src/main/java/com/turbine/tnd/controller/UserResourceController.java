@@ -216,4 +216,17 @@ public class UserResourceController {
         return message;
     }
 
+    //TODO:测试视频
+    @GetMapping("/user/resource/video/{id}")
+    public Message getLocation(@PathVariable Integer id){
+        Message message = new Message(ResultCode.SUCCESS);
+        Object data = s_ur.getMovieLocation(id);
+       if(data == null)message.setResultCode(ResultCode.ERROR_404);
+       else {
+            message.setData(data);
+       }
+
+       return message;
+    }
+
 }

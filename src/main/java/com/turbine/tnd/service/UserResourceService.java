@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.sql.Date;
@@ -122,7 +123,7 @@ public class UserResourceService {
             dto.setFileSize(fudto.getTotalSize());
 
             fdto.setResource(dto);
-            log.debug("文件已经在服务器有了！");
+            log.debug("文件: "+fudto.getFileName()+"   在服务器中已存在！");
             message.setData(fdto);
         }else {
             //未上传进行上传
@@ -797,4 +798,28 @@ public class UserResourceService {
     }
 
 
+    /**
+     * @Description: 获取视频文件位置
+     * @author Turbine
+     * @param
+     * @param userResourceId
+     * @param resp
+     * @return java.lang.String
+     * @date 2023/2/19 17:26
+     */
+
+    public String getMovieLocation(Integer userResourceId) {
+        String re = null;
+        UserResource userResource = urdao.inquireUserResourceById(userResourceId);
+        if(userResource != null){
+            Resource resource = rdao.inquireByName(userResource.getFileName());
+            String location = resource.getLocation();
+
+            int first = location.lastIndexOf("/static");
+            int end = location.lastIndexOf(".");
+            re = location.substring(first+7, end) + ".m3u8";
+
+        }
+        return re;
+    }
 }

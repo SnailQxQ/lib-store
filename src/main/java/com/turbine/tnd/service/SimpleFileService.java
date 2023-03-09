@@ -89,8 +89,17 @@ public class SimpleFileService{
                 redao.addReourceType(name,typeId);
                 //若为视频文件则对应进行视频处理
                 if( ".mp4".equals(suffix) ){
+                    //文件第一次传输要时间，传输完成后才进行分片
                     new Thread(()->{
-                        CommandUtils.processVideo(baseDir+path,parent+File.separator+name.toString()+"_out.m3u8");
+                        while(!target.exists()){
+                            try {
+                                System.out.println("文件"+target.getName()+ " 位置："+target.getAbsolutePath()+ " 还在生成中....成功后进行分配操作");
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        CommandUtils.processVideo(baseDir+path,parent+File.separator+name.toString()+".m3u8");
                     }).start();
                 }
             }else {
