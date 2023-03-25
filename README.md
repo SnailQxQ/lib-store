@@ -1,4 +1,4 @@
-# netDisk
+# Lib-store
 前端分离的网盘项目
 
 基于SpringBoot SSM + Mysql
