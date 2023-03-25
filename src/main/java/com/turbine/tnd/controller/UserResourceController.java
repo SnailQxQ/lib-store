@@ -7,6 +7,7 @@ import com.turbine.tnd.bean.UserResource;
 import com.turbine.tnd.dto.FileRequestDTO;
 import com.turbine.tnd.dto.RNavigationDTO;
 import com.turbine.tnd.service.UserResourceService;
+import io.netty.channel.MessageSizeEstimator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,6 +110,13 @@ public class UserResourceController {
         return message;
     }
 
+    //TODO:资源是否持有验证放入拦截器里面去执行
+    @PostMapping("/user/resource/collet")
+    public Message addCollectResource(@RequestBody UserResource userResource,@CookieValue String userName){
+        Message message = new Message(ResultCode.SUCCESS);
+        message.setData(s_ur.addCollectResource(userResource.getResourceId(),userResource.getTypeId(),userName));
+        return  message;
+    }
 
 
 
@@ -228,5 +236,7 @@ public class UserResourceController {
 
        return message;
     }
+
+
 
 }

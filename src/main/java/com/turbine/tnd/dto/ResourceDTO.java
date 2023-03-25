@@ -30,6 +30,8 @@ public class ResourceDTO {
     private Long fileSize;
     //缩略图
     private Object showImage;
+    //是否收藏
+    private Boolean collect;
 
     public ResourceDTO(){};
 
@@ -41,5 +43,6 @@ public class ResourceDTO {
         if(ur.getUploadTime() != null)this.createTime = ur.getUploadTime();
         if(ur.getFileName() != null)this.fileId = ur.getFileName();
         if(ur.getShowImage() != null)this.showImage = ur.getShowImage();
+        if(ur.getCollect() != null)this.collect = ur.getCollect();
     }
 }

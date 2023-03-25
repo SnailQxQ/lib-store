@@ -15,4 +15,5 @@ public class FolderDTO {
     private int folderId;
     private Date createTime;
     private String folderName;
+    private Boolean collect;
 }

@@ -46,7 +46,7 @@
 
     <!--inquireUserFolders-->
     <select id="inquireUserFolders" resultType="FolderDTO">
-        SELECT id folderId,name folderName ,createTime FROM user_folder
+        SELECT id folderId,name folderName ,createTime,collect FROM user_folder
         WHERE parentId = #{parentId}
                 AND  userId = #{userId}
                 AND d_flag=#{isRecycle}
@@ -54,7 +54,7 @@
     </select>
 
     <select id="inquireUserFolderById" resultType="FolderDTO">
-        SELECT id folderId,name folderName ,createTime FROM user_folder WHERE id = #{folderId}
+        SELECT id folderId,name folderName ,createTime,collect FROM user_folder WHERE id = #{folderId}
     </select>
 
 

@@ -583,6 +583,10 @@ public class UserResourceService {
         return flag;
     }
 
+
+
+
+
     public boolean getFolderIsEmpty(Integer folderId,String userName){
         User user = udao.inquireByName(userName);
         return FolderIsEmpty(folderId,user.getId());
@@ -820,6 +824,37 @@ public class UserResourceService {
             re = location.substring(first+7, end) + ".m3u8";
 
         }
+        return re;
+    }
+
+
+    /**
+     * @Description:
+     * @author Turbine
+     * @param
+     * @param userResoureId
+     * @param flag : 0为文件夹 1 为文件
+     * @return java.lang.Boolean
+     * @date 2023/3/24 20:01
+     */
+    public Boolean addCollectResource(int userResoureId,int flag,String userName) {
+        User user = udao.inquireByName(userName);
+        Boolean re = false;
+
+        if(flag == 1){
+            UserResource userResource = urdao.inquireUserResourceById(userResoureId);
+            if(userResource != null && userResource.getU_id() == user.getId()){
+                userResource.setCollect(true);
+                if(urdao.modifyResource(userResource) > 0 )re = true;
+            }
+        }else if(flag == 0){
+            Folder folder = fdao.inquireFolderById(userResoureId);
+            if(folder != null && folder.getUserId() == user.getId()){
+                folder.setCollect(true);
+                if (fdao.modifyFolder(folder) > 0)re = true;
+            }
+        }
+
         return re;
     }
 }
