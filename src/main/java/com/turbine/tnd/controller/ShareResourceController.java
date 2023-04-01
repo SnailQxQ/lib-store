@@ -30,7 +30,7 @@ public class ShareResourceController {
     public Message createShareResource(@RequestBody ShareResourceDTO srdto, @CookieValue String userName){
         Message message = new Message(ResultCode.ERROR_500);
         String shareId;
-        if(!srdto.isValid())message.setResultCode(ResultCode.ERROR_400);
+        if(!srdto.verify())message.setResultCode(ResultCode.ERROR_400);
         else if( (shareId = s_sr.createShareResource(srdto,userName) )!= null){
             message.setResultCode(ResultCode.SUCCESS);
             message.setData(shareId);

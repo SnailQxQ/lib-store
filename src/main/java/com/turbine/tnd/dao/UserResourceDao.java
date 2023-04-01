@@ -31,4 +31,5 @@ public interface UserResourceDao {
 
     List<UserResource> inquireUserResourceByParentId(Integer parentId, Integer userId, boolean d_flag);
 
+    List<UserResource> inquireCollectUserResource(Integer userId, Boolean isRecycle, Boolean collect);
 }

@@ -1,5 +1,6 @@
 package com.turbine.tnd.dto;
 
+import com.turbine.tnd.bean.Folder;
 import lombok.Data;
 
 import java.sql.Date;
@@ -16,4 +17,13 @@ public class FolderDTO {
     private Date createTime;
     private String folderName;
     private Boolean collect;
+
+    FolderDTO(){}
+
+    public FolderDTO(Folder folder){
+        this.folderId = folder.getFolderId();
+        this.createTime = folder.getCreateTime();
+        this.folderName = folder.getFolderName();
+        this.collect = folder.getCollect();
+    }
 }

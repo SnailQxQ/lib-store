@@ -14,11 +14,14 @@ import java.sql.Date;
 @ToString
 public class ResourceRecycle {
     Integer u_id;
+    //用户资源id
     Integer resourceId;
     Date deleteTime;
     String originalName;
     Integer parentId;
     Integer typeId;
+    //缩略图
+    Object thumbnail;
 
 
 }

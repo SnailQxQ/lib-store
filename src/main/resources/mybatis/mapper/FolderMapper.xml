@@ -55,4 +55,10 @@
         SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE parentId = #{id}
     </select>
+
+
+    <select id="inquireCollectFolder" resultType="Folder">
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+        FROM user_folder WHERE d_flag=#{isRecycle} AND userId=#{userId} AND collect=#{collect}
+    </select>
 </mapper>

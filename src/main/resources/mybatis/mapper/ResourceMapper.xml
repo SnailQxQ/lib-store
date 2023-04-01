@@ -81,15 +81,15 @@
     </resultMap>
 
     <select id="inquireUserResourceByParentId" resultMap="userResource">
-        SELECT id,originalName,uploadTime,encryption,s_flag,typeId,fileName,showImage,collect  FROM user_resource
-        WHERE u_id = #{userId} AND parentId = #{parentId}
-                               AND d_flag=#{isRecycle}
+        SELECT id,originalName,uploadTime,encryption,s_flag,typeId,fileName,thumbnail,collect  FROM user_resource
+        WHERE u_id = #{userId} AND d_flag=#{isRecycle}
+        <if test="parentId != null">AND parentId = #{parentId}</if>
         <if test="isCollect != null">AND collect = #{isCollect}</if>
     </select>
 
 
     <select id="inquireUserResourceByName" resultMap="userResource">
-        SELECT originalName,uploadTime,encryption,s_flag,typeId,fileName,collect
+        SELECT originalName,uploadTime,encryption,s_flag,typeId,fileName,collect,thumbnail
         FROM user_resource WHERE u_id = #{userId} AND fileName = #{fileName}
     </select>
 

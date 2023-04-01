@@ -3,6 +3,8 @@ package com.turbine.tnd.dao;
 import com.turbine.tnd.bean.Folder;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * @author Turbine
  * @Description
@@ -21,4 +23,6 @@ public interface FolderDao {
     int addFolder(Folder folder);
 
     Folder inquireParent(Integer id);
+
+    List<Folder> inquireCollectFolder(Integer userId, Boolean isRecycle, Boolean collect);
 }

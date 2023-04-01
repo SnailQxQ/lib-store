@@ -42,6 +42,9 @@ public class RecycleResourceService {
 
         if (u != null) {
             List<ResourceRecycle> rrs =  rrdao.inquireAll(u.getId());
+            for (ResourceRecycle e : rrs){
+               if(e.getTypeId() == 1) e.setThumbnail(s_ur.getThumbnail(e.getResourceId()));
+            }
             message.setData(rrs);
         }
         return message;

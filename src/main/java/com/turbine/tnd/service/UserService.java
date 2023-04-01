@@ -86,6 +86,8 @@ public class UserService {
             udto.setUserName(result.getUserName());
             //登入成功 更新token
             request.getSession().setAttribute(udto.getUserName(), udto.getToken());
+            //设置5小时没操作就过期
+            request.getSession().setMaxInactiveInterval(18000);
 
             me.setData(udto);
 

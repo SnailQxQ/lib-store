@@ -38,7 +38,7 @@ public class UserResource {
     //类型id
     private Integer typeId;
     //资源预览图
-    private Object showImage;
+    private Object thumbnail;
     //是否为收藏资源
     private Boolean collect = false;
 

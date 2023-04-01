@@ -34,6 +34,8 @@ public class ShareResourceDTO {
     private Integer downloads;
     //资源类型 0:文件夹 1:文件
     private Integer type;
+    //是否过期
+    private Boolean valid;
 
     public ShareResourceDTO(){}
 
@@ -42,7 +44,8 @@ public class ShareResourceDTO {
     }
 
 
-    public boolean isValid(){
+    //注意isValid 会被@Data 当成valid属性的get 方法
+    public boolean verify(){
         boolean re = false;
         if(type != null){
             if(type == 1 ){
@@ -65,5 +68,6 @@ public class ShareResourceDTO {
         this.clicks = sr.getClicks();
         this.downloads = sr.getDownloads();
         this.type = sr.getType();
+        this.valid = (sr.getCreateTime().getTime()+(long)this.survivalTime*60*1000 - System.currentTimeMillis()) > 0;
     }
 }

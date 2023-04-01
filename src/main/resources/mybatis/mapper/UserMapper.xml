@@ -47,9 +47,9 @@
     <!--inquireUserFolders-->
     <select id="inquireUserFolders" resultType="FolderDTO">
         SELECT id folderId,name folderName ,createTime,collect FROM user_folder
-        WHERE parentId = #{parentId}
-                AND  userId = #{userId}
+        WHERE   userId = #{userId}
                 AND d_flag=#{isRecycle}
+          <if test="parentId != null" >AND parentId = #{parentId}</if>
         <if test="isCollect != null">AND collect = #{isCollect}</if>
     </select>
 

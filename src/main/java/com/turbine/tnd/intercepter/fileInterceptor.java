@@ -55,7 +55,7 @@ public class fileInterceptor implements HandlerInterceptor {
             Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
             String parentId = null;
             //先验证文件夹是否存在
-            if( (parentId = (String)pathVariables.get("parentId") ) != null &&  !"0".equals(parentId) ){
+            if(pathVariables != null &&  (parentId = (String)pathVariables.get("parentId") ) != null &&  !"0".equals(parentId) ){
 
                 if( !s_ur.FolderIsExist(Integer.parseInt(parentId)) ){
                     flag = false;

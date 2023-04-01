@@ -12,10 +12,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import sun.net.www.http.HttpClient;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -171,17 +174,25 @@ public class UserResourceService {
 
         return  rfdto;
     }
-    // 获取自己的一层的资源
+
+    //查询指定层级资源
     public ResourceFolder getOwnLevelResource(Integer parentId,String userName,Boolean collect){
         User user = udao.inquireByName(userName);
         ResourceFolder rfdto = new ResourceFolder();
-        List<FolderDTO> folders = udao.inquireUserFolders(parentId,user.getId(), false,collect);
-        List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(parentId,user.getId(), false,collect);
+        fdao.inquireCollectFolder(user.getId(),false,collect);
+        List<FolderDTO> folders = udao.inquireUserFolders(parentId, user.getId(), false, collect);
+        List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(parentId, user.getId(), false, collect);
+
         rfdto.setFolders(folders);
         rfdto.setResources(resources);
 
         return  rfdto;
     }
+
+    public ResourceFolder getCollectResource(String userName,Boolean collect){
+        return getOwnLevelResource(null,userName,collect);
+    }
+
 
     /**
      * 根据资源md5 id 判断文件是否存在
@@ -238,10 +249,7 @@ public class UserResourceService {
         Folder folder = new Folder(new Date(System.currentTimeMillis()), folderName, user.getId(), parentId);
 
         if (user != null && udao.addUserFolder(folder) > 0) {
-            FolderDTO folderDTO = new FolderDTO();
-            folderDTO.setFolderId(folder.getFolderId());
-            folderDTO.setFolderName(folderName);
-            folderDTO.setCreateTime(folder.getCreateTime());
+            FolderDTO folderDTO = new FolderDTO(folder);
 
             message.setResultCode(ResultCode.SUCCESS);
             message.setData(folderDTO);
@@ -828,6 +836,11 @@ public class UserResourceService {
     }
 
 
+
+    public Boolean addCollectResource(int userResoureId,int flag,String userName) {
+        return modifyCollectStatus(userResoureId,flag,userName,true);
+    }
+
     /**
      * @Description:
      * @author Turbine
@@ -837,24 +850,82 @@ public class UserResourceService {
      * @return java.lang.Boolean
      * @date 2023/3/24 20:01
      */
-    public Boolean addCollectResource(int userResoureId,int flag,String userName) {
+    protected Boolean modifyCollectStatus(Integer resourceId,Integer flag,String userName,Boolean collect){
         User user = udao.inquireByName(userName);
         Boolean re = false;
 
         if(flag == 1){
-            UserResource userResource = urdao.inquireUserResourceById(userResoureId);
+            UserResource userResource = urdao.inquireUserResourceById(resourceId);
             if(userResource != null && userResource.getU_id() == user.getId()){
-                userResource.setCollect(true);
+                userResource.setCollect(collect);
                 if(urdao.modifyResource(userResource) > 0 )re = true;
             }
         }else if(flag == 0){
-            Folder folder = fdao.inquireFolderById(userResoureId);
+            Folder folder = fdao.inquireFolderById(resourceId);
             if(folder != null && folder.getUserId() == user.getId()){
-                folder.setCollect(true);
+                folder.setCollect(collect);
                 if (fdao.modifyFolder(folder) > 0)re = true;
             }
         }
 
         return re;
+    }
+
+    public Boolean removeCollectResource(Integer resourceId, Integer typeId, String userName) {
+        return  modifyCollectStatus(resourceId,typeId,userName,false);
+    }
+
+    /**
+     * @Description: 根据url 保存资源
+     * @author Turbine
+     * @param
+     * @param url
+     * @param userName
+     * @return java.lang.Boolean
+     * @date 2023/3/25 22:05
+     */
+    public Boolean downLoadResource(String url, String userName) {
+        boolean flag = true;
+
+        try {
+            String yourURLStr = java.net.URLEncoder.encode(url, "UTF-8");
+            HttpClient client = HttpClient.New(new URL(yourURLStr));
+
+            InputStream os = client.getInputStream();
+            File file = new File("D:\\static"+client.getURLFile());
+            byte[] bytes = new byte[1024];
+            int re = -1;
+            file.createNewFile();
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+
+            while( (re = os.read(bytes)) != -1){
+                bos.write(bytes,0,re);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return  flag;
+    }
+
+
+    public boolean addThumbnail(ResourceDTO data) {
+        UserResource userResource = urdao.inquireUserResourceById(data.getId());
+        userResource.setThumbnail(data.getThumbnail());
+        return urdao.modifyResource(userResource) > 0;
+    }
+
+    /**
+     * @Description:  获取文件资源的缩略图
+     * @author Turbine
+     * @param
+     * @param userResourceId
+     * @return java.lang.Object
+     * @date 2023/4/1 13:44
+     */
+    public Object getThumbnail(Integer userResourceId) {
+        UserResource userResource = urdao.inquireUserResourceById(userResourceId);
+        return userResource.getThumbnail();
     }
 }

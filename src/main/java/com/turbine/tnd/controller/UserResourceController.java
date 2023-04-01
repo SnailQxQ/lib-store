@@ -1,11 +1,9 @@
 package com.turbine.tnd.controller;
 
-import com.turbine.tnd.bean.Folder;
-import com.turbine.tnd.bean.Message;
-import com.turbine.tnd.bean.ResultCode;
-import com.turbine.tnd.bean.UserResource;
+import com.turbine.tnd.bean.*;
 import com.turbine.tnd.dto.FileRequestDTO;
 import com.turbine.tnd.dto.RNavigationDTO;
+import com.turbine.tnd.dto.ResourceDTO;
 import com.turbine.tnd.service.UserResourceService;
 import io.netty.channel.MessageSizeEstimator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +58,7 @@ public class UserResourceController {
 
 
 
+
     @PostMapping("/user/resource/file/slice")
     public Message sliceUpload(FileRequestDTO fudto, HttpServletRequest request) throws IOException {
         //防止上传用户名在中途被篡改，直接使用的cookie 中已经被验证过的
@@ -94,6 +93,13 @@ public class UserResourceController {
         return s_ur.inquireSliceProgress(frdto);
     }
 
+    @PostMapping("/user/resource/file/thumbnail")
+    public Message uploadThumbnail(@RequestBody ResourceDTO data){
+        Message message = new Message(ResultCode.SUCCESS);
+        message.setData(s_ur.addThumbnail(data));
+        return  message;
+    }
+
     //查询指定用户的指定文件夹下的所有文件 ，不展示已经被删除的文件
     @GetMapping("/user/resource/{parentId}")
     public Message inquireUserFile(@PathVariable("parentId") int parentId,@CookieValue String userName){
@@ -103,10 +109,10 @@ public class UserResourceController {
     }
 
     //查询指定用户的指定文件夹下的所有文件 ，不展示已经被删除的文件
-    @GetMapping("/user/resource/collet/{parentId}")
-    public Message inquireCollectUserFile(@PathVariable("parentId") int parentId,@CookieValue String userName){
+    @GetMapping("/user/resource/collet")
+    public Message inquireCollectUserFile(@CookieValue String userName){
         Message message = new Message(ResultCode.SUCCESS);
-        message.setData(s_ur.getOwnLevelResource(parentId,userName,true));
+        message.setData(s_ur.getCollectResource(userName,true));
         return message;
     }
 
@@ -115,6 +121,13 @@ public class UserResourceController {
     public Message addCollectResource(@RequestBody UserResource userResource,@CookieValue String userName){
         Message message = new Message(ResultCode.SUCCESS);
         message.setData(s_ur.addCollectResource(userResource.getResourceId(),userResource.getTypeId(),userName));
+        return  message;
+    }
+
+    @DeleteMapping("/user/resource/collet")
+    public Message removeCollectResouce(@RequestBody UserResource userResource,@CookieValue String userName){
+        Message message = new Message(ResultCode.SUCCESS);
+        message.setData(s_ur.removeCollectResource(userResource.getResourceId(),userResource.getTypeId(),userName));
         return  message;
     }
 
@@ -237,6 +250,11 @@ public class UserResourceController {
        return message;
     }
 
+    @PostMapping("/user/resource/url")
+    public Message downResource(@RequestBody String url,@CookieValue String userName){
+        Message message = new Message(ResultCode.SUCCESS);
+        message.setData(s_ur.downLoadResource(url,userName));
 
-
+        return  message;
+    }
 }
