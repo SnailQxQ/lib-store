@@ -180,7 +180,9 @@ public class ShareResourceService {
             sr.setSurvivalTime(srdto.getSurvivalTime());
             sr.setShareName(shareName);
             sr.setType(0);
-            if(usrdao.addShareResource(sr) > 0)re = shareName;
+
+            folder.setS_flag(true);
+            if(usrdao.addShareResource(sr) > 0 && fdao.modifyFolder(folder) > 0)re = shareName;
         }
 
         return re;
@@ -203,7 +205,8 @@ public class ShareResourceService {
             sr.setUserResourceId(ur.getId());
             sr.setType(1);
 
-            if(usrdao.addShareResource(sr) > 0)re = shareName;
+            ur.setS_flag(true);
+            if(usrdao.addShareResource(sr) > 0 && urdao.modifyResource(ur) > 0)re = shareName;
         }
 
         return re;
@@ -320,10 +323,32 @@ public class ShareResourceService {
         return re;
     }
 
-    public boolean undoShareResouce(String resourceName, String userName) {
+    /**
+     * @Description:
+     * @author Turbine
+     * @param
+     * @param shareName 分享资源名
+     * @param userName
+     * @return boolean
+     * @date 2023/4/2 18:14
+     */
+    public boolean undoShareResouce(String shareName, String userName) {
         boolean result = false;
         User user = udao.inquireByName(userName);
-        int sr = usrdao.delelteShareResourceByRName(resourceName,user.getId());
+        ShareResource shareResource = usrdao.inquireShareResourceBysName(shareName);
+        int sr = usrdao.delelteShareResourceByRName(shareName,user.getId());
+        List<ShareResource> list = usrdao.inquireShareResourceById(user.getId(),shareResource.getUserResourceId());
+        if(list.size() == 0){
+            if(shareResource.getType() == 0){
+                Folder folder = fdao.inquireFolderById(shareResource.getUserResourceId());
+                folder.setS_flag(false);
+                fdao.modifyFolder(folder);
+            }else{
+                UserResource userResource = urdao.inquireUserResourceById(shareResource.getUserResourceId());
+                userResource.setS_flag(false);
+                urdao.modifyResource(userResource);
+            }
+        }
         if(sr > 0)result = true;
         return result;
     }

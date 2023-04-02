@@ -25,11 +25,14 @@ public interface UserShareResourceDao {
     ShareResource inquireShareResourceBysName(String shareName);
 
     //模糊查询我的分享
-    List<ShareResource> inquireShareResourceBySSName(int userId, String shareName);
+    //List<ShareResource> inquireShareResourceBySSName(int userId, String shareName);
 
     int incrClicks(String shareName);
 
     int incrDowloads(String shareName);
 
     int delelteShareResourceByURId(int id);
+
+    //根据用户资源id查询当前用户的分享资源
+    List<ShareResource> inquireShareResourceById(Integer userId, Integer userResourceId);
 }

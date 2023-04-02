@@ -17,7 +17,7 @@ public class ResourceDTO {
     //资源名
     private String fileName;
     //是否共享
-    private boolean isShare;
+    private boolean share;
     //是否加密
     private boolean isEncrypt;
     //创建时间
@@ -38,7 +38,7 @@ public class ResourceDTO {
     public ResourceDTO(UserResource ur) {
         if(ur.getId() != null)this.id = ur.getId();
         if(ur.getOriginalName() != null)this.fileName = ur.getOriginalName();
-        if(ur.getS_flag() != null)this.isShare = ur.getS_flag();
+        if(ur.getS_flag() != null)this.share = ur.getS_flag();
         if(ur.getEncryption() != null)this.isEncrypt = ur.getEncryption();
         if(ur.getUploadTime() != null)this.createTime = ur.getUploadTime();
         if(ur.getFileName() != null)this.fileId = ur.getFileName();

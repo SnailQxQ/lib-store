@@ -75,10 +75,7 @@
         WHERE shareName = #{shareName}
     </select>
 
-    <!-- 涉及文件夹表 用户资源表 和 分享表 三表模糊查询联查 -->
-    <select id="inquireShareResourceBySSName" resultMap="sResource">
 
-    </select>
 
 
     <update id="incrClicks" >
@@ -95,4 +92,11 @@
     <delete id="delelteShareResourceByURId" >
         DELETE FROM user_share_resource WHERE  u_r_id = #{id}
     </delete>
+
+
+    <select id="inquireShareResourceById" resultMap="sResource">
+        SELECT id,shareName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads,type
+        FROM  user_share_resource
+        WHERE u_id = #{userId} AND u_r_id = #{userResourceId}
+    </select>
 </mapper>

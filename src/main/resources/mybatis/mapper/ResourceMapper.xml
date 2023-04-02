@@ -66,9 +66,9 @@
         <result column="originalName" property="fileName"></result>
         <result column="uploadTime" property="createTime"></result>
         <result column="fileName" property="fileId"></result>
-        <result column="s_flag" property="isShare"></result>
+        <result column="s_flag" property="share"></result>
         <result column="encryption" property="isEncrypt"></result>
-        <result column="showImage" property="showImage"></result>
+        <result column="thumbnail" property="thumbnail"></result>
         <result column="collect" property="collect"></result>
         <association property="fileType"
                      javaType="String"
