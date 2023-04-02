@@ -42,8 +42,8 @@
 
     </update>
 
-    <delete id="removeResource" parameterType="Folder">
-        DELETE  FROM user_resource WHERE r_id = #{resourceId} AND u_id = #{u_id}
+    <delete id="removeResource" parameterType="UserResource">
+        DELETE  FROM user_resource WHERE id = #{id} AND u_id = #{u_id}
     </delete>
 
     <resultMap id="uResource" type="UserResource">

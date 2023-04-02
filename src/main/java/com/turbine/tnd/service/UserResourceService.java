@@ -508,9 +508,9 @@ public class UserResourceService {
             rr.setDeleteTime(new Date(System.currentTimeMillis()));
             rr.setTypeId(0);
 
-            if(!del){
-                setUserFolderStatus(folderId,user.getId(),del,true);
 
+            if(!del){
+                //物理删除的时候移除分享资源
                 delelteShareResource(folderId,user.getId());
 
                 rrdao.addResourceRecycle(rr);
@@ -518,6 +518,7 @@ public class UserResourceService {
                 rrdao.removeResourceRecycle(rr);
             }
 
+            setUserFolderStatus(folderId,user.getId(),del,true);
             message.setResultCode(ResultCode.SUCCESS);
         }
 
@@ -528,7 +529,7 @@ public class UserResourceService {
      *
      * @param folderId  要进行操作的文件id
      * @param userId    操作者
-     * @param del       删除标识，是逻辑修改还是物理删除
+     * @param del       是否物理删除，是逻辑修改还是物理删除
      * @param delFlag    删除标记，仅在逻辑修改状态生效
      * @return
      */
@@ -568,14 +569,14 @@ public class UserResourceService {
             //物理删除
             folder.setUserId(userId);
             fdao.removeFolder(folder);
-            List<FolderDTO> folders = udao.inquireUserFolders(folderId, userId, !delFlag,null);
-            List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
+            List<FolderDTO> folders = udao.inquireUserFolders(folderId, userId, true,null);
+            List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, true,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
                     UserResource newRe = new UserResource();
-                    newRe.setResourceId(re.getId());
                     //newRe.setFileName(re.getFileId());
                     newRe.setU_id(userId);
+                    newRe.setId(re.getId());
 
                     urdao.removeResource(newRe);
                 }
