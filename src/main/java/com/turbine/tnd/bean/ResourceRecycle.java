@@ -21,7 +21,7 @@ public class ResourceRecycle {
     Integer parentId;
     Integer typeId;
     //缩略图
-    Object thumbnail;
+    String thumbnail;
 
 
 }

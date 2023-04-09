@@ -925,7 +925,7 @@ public class UserResourceService {
      * @return java.lang.Object
      * @date 2023/4/1 13:44
      */
-    public Object getThumbnail(Integer userResourceId) {
+    public String getThumbnail(Integer userResourceId) {
         UserResource userResource = urdao.inquireUserResourceById(userResourceId);
         return userResource.getThumbnail();
     }
