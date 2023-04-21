@@ -19,6 +19,7 @@
 ![1679735946504](https://user-images.githubusercontent.com/50403161/227708656-6a4d8142-f6fc-40b0-884f-f9e36c0a6f6b.jpg)
   + 资源预览
     - 视频预览 ![视频预览](https://user-images.githubusercontent.com/50403161/233643649-abdaa4e1-f0a2-4219-8b4c-eab403c2885a.png)
+    
     - 图片预览 ![图片预览](https://user-images.githubusercontent.com/50403161/233643039-d2612446-3b3e-4792-aa36-63a60e00e3b5.png)
     - pdf预览 ![pdf预览](https://user-images.githubusercontent.com/50403161/233643073-ef11c03e-5dba-42ce-927f-032af0277ef0.png)
 
