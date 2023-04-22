@@ -35,8 +35,8 @@ public interface UserDao {
 
     int modifyFileName(String fileId, String newName);
     //传入id时就根据指定id查询否则就查询全体
-    List<User> inquireById(@Param("userId")int userId);
-    List<User> inquireById();
+    User inquireById(@Param("userId")int userId);
+
 
     FolderDTO inquireFolder(int folderId);
 

@@ -25,4 +25,6 @@ public interface FolderDao {
     Folder inquireParent(Integer id);
 
     List<Folder> inquireCollectFolder(Integer userId, Boolean isRecycle, Boolean collect);
+
+    List<Folder> inquireFolders(Integer parentId, Integer userId, Boolean isRecycle, Boolean isCollect);
 }

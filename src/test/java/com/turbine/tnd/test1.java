@@ -121,15 +121,7 @@ public class test1 {
 
 
     //查询文件夹
-    @Test
-    public void test8() {
-        List<User> users = udao.inquireById(1);
-        users.forEach(System.out::println);
-        System.out.println("+====================");
-        List<User> users2 = udao.inquireById();
-        users2.forEach(System.out::println);
 
-    }
 
     @Test
     public void test9() {

@@ -104,4 +104,40 @@ public class ResourceService {
         return flag;
     }
 
+
+    /**
+     * @Description: 递归修改文件夹以及文件内资源 删除标记 和 分享标记
+     * @author Turbine
+     * @param
+     * @param folder
+     * @date 2023/4/22 18:14
+     */
+    public void recurModifyFolder(Folder folder){
+
+        fdao.modifyFolder(folder);//设置文件夹自己为删除状态
+        List<Folder> folders = fdao.inquireFolders(folder.getFolderId(), folder.getUserId(), null, null);
+
+        List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folder.getFolderId(), folder.getUserId(), null,null);
+        if (resources != null) {
+            for (ResourceDTO re : resources) {
+                UserResource newRe = new UserResource();
+                newRe.setId(re.getId());
+                newRe.setFileName(re.getFileId());
+                newRe.setD_flag(folder.isD_flag());
+                newRe.setS_flag(folder.isS_flag());
+                newRe.setU_id(folder.getUserId());
+
+                urdao.modifyResource(newRe);
+            }
+        }
+        if (folders != null) {
+            for (Folder f : folders) {
+                f.setS_flag(folder.isS_flag());
+                f.setD_flag(folder.isD_flag());
+                recurModifyFolder(f);
+            }
+        }
+
+    }
+
 }

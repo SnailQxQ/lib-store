@@ -21,7 +21,7 @@ public class ShareResource {
     String shareName;
     //6位提取码
     String fetchCode;
-    //用户id
+    //创建者id
     Integer userId;
     //用户资源表id or 文件夹id
     Integer userResourceId;

@@ -17,6 +17,7 @@ public class FolderDTO {
     private Date createTime;
     private String folderName;
     private Boolean collect;
+    private Boolean share;
 
     FolderDTO(){}
 
@@ -25,5 +26,6 @@ public class FolderDTO {
         this.createTime = folder.getCreateTime();
         this.folderName = folder.getFolderName();
         this.collect = folder.getCollect();
+        this.share = folder.isS_flag();
     }
 }

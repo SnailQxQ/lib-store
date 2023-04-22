@@ -81,6 +81,7 @@ public class UserController {
     //根据用户名查询用户信息
     @GetMapping("/user/{name}")
     public Message getUserInfo(@PathVariable String name){
+
         User user = us.getUser(name);
         user.setSequence(null);
         user.setId(null);

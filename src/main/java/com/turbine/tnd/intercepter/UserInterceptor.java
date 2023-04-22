@@ -27,7 +27,7 @@ public class UserInterceptor implements HandlerInterceptor {
         boolean flag = false;
         String url = request.getRequestURI();
 
-        if(url.contains("/user/resource/share")
+        if( (url.contains("/user/resource/share") && !url.contains("transfer") )
             || url.contains("/user/register")
             || url.contains("/user/resource/file/expire"))return true;
 

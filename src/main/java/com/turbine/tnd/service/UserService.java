@@ -117,6 +117,9 @@ public class UserService {
     }
 
     public User getUser(String userName) {
+        if( userName.matches("[0-9]+")){
+            return udao.inquireById(Integer.parseInt(userName));
+        }
         return udao.inquireByName(userName);
     }
 

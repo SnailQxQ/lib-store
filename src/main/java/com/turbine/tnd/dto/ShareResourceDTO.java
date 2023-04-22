@@ -15,9 +15,9 @@ import java.sql.Timestamp;
 @Data
 @ToString
 public class ShareResourceDTO {
-    //仅为文件资源时使用 用户资源id
+    //仅为文件资源时使用 用户资源id (文件或文件夹)
     private Integer userResourceId;
-    //资源id 文件或文件夹
+    //资源id
     //private Integer resourceId;
     private String shareName;
     //资源名 or 文件夹名
@@ -36,6 +36,8 @@ public class ShareResourceDTO {
     private Integer type;
     //是否过期
     private Boolean valid;
+    //分享者id
+    private Integer shareUId;
 
     public ShareResourceDTO(){}
 
@@ -69,5 +71,6 @@ public class ShareResourceDTO {
         this.downloads = sr.getDownloads();
         this.type = sr.getType();
         this.valid = (sr.getCreateTime().getTime()+(long)this.survivalTime*60*1000 - System.currentTimeMillis()) > 0;
+        this.shareUId = sr.getUserId();
     }
 }

@@ -886,22 +886,23 @@ public class UserResourceService {
      * @date 2023/3/25 22:05
      */
     public Boolean downLoadResource(String url, String userName) {
-        boolean flag = true;
+        boolean flag = false;
 
         try {
-            String yourURLStr = java.net.URLEncoder.encode(url, "UTF-8");
-            HttpClient client = HttpClient.New(new URL(yourURLStr));
+            URL resource = new URL("https://zhuanlan.zhihu.com/p/97499017");
+            InputStream is = resource.openStream();
 
-            InputStream os = client.getInputStream();
-            File file = new File("D:\\static"+client.getURLFile());
+            File file = new File("D:\\static"+"/test.html");
             byte[] bytes = new byte[1024];
             int re = -1;
             file.createNewFile();
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
-            while( (re = os.read(bytes)) != -1){
+            while( (re = is.read(bytes)) != -1){
+                System.out.println(new String(bytes));
                 bos.write(bytes,0,re);
             }
+            flag = true;
         } catch (IOException e) {
             e.printStackTrace();
         }

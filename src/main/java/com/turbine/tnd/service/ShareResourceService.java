@@ -50,6 +50,8 @@ public class ShareResourceService {
 
     @Autowired
     UserResourceService s_ur;
+    @Autowired
+    ResourceService s_r;
 
     @Value("${file.upload.tmpDir}")
     String tempDir;
@@ -181,8 +183,11 @@ public class ShareResourceService {
             sr.setShareName(shareName);
             sr.setType(0);
 
+
             folder.setS_flag(true);
-            if(usrdao.addShareResource(sr) > 0 && fdao.modifyFolder(folder) > 0)re = shareName;
+            //递归修改分享标志
+            s_r.recurModifyFolder(folder);
+            if(usrdao.addShareResource(sr) > 0)re = shareName;
         }
 
         return re;
@@ -342,7 +347,7 @@ public class ShareResourceService {
             if(shareResource.getType() == 0){
                 Folder folder = fdao.inquireFolderById(shareResource.getUserResourceId());
                 folder.setS_flag(false);
-                fdao.modifyFolder(folder);
+                s_r.recurModifyFolder(folder);
             }else{
                 UserResource userResource = urdao.inquireUserResourceById(shareResource.getUserResourceId());
                 userResource.setS_flag(false);
@@ -356,7 +361,7 @@ public class ShareResourceService {
 
     //保存用户资源
     /**
-     * @Description: 将分享资源进行转存至指定的文件夹内操作
+     * @Description: 根据分享名将分享资源进行转存至指定的文件夹内操作
      * @author Turbine
      * @param
      * @param shareName 分享文定位hash id
@@ -365,7 +370,8 @@ public class ShareResourceService {
      * @return boolean
      * @date 2023/1/25 14:24
      */
-    public boolean saveShareResource(String shareName,Integer parentId,String userName) {
+
+    /*public boolean saveShareResource(String shareName,Integer parentId,String userName) {
         boolean flag = false;
         ShareResource shareResource = usrdao.inquireShareResourceBysName(shareName);
         User user = udao.inquireByName(userName);
@@ -384,6 +390,36 @@ public class ShareResourceService {
         }
 
         return flag;
+    }*/
+
+
+    //批量转存资源
+    //TODO:根据分享id 来批量进行转存 要校验资源是否是分享状态
+    public void saveShareResource(List<ShareResourceDTO> shareResouces,Integer parentId,String userName) {
+        User user = udao.inquireByName(userName);
+        Integer userId = user.getId();
+
+        for(ShareResourceDTO re : shareResouces){
+
+            switch (re.getType()){
+                case 0: {
+                    Folder folder = fdao.inquireFolderById(re.getUserResourceId());
+                    if(folder.isS_flag()){
+                        s_ur.saveFolder(re.getUserResourceId(), userId, parentId);
+                    }
+                    break;
+                }
+                case 1: {
+                    UserResource userResource = urdao.inquireUserResourceById(re.getUserResourceId());
+                    if(userResource.getS_flag()){
+                        s_ur.saveFile(userResource, parentId,userId);
+                    }
+                    break;
+                }
+            }
+
+        }
+
     }
 
 }

@@ -237,7 +237,7 @@ public class UserResourceController {
         return message;
     }
 
-    //TODO:测试视频
+
     @GetMapping("/user/resource/video/{id}")
     public Message getLocation(@PathVariable Integer id){
         Message message = new Message(ResultCode.SUCCESS);
@@ -250,6 +250,7 @@ public class UserResourceController {
        return message;
     }
 
+    //TODO:根据url下载资源
     @PostMapping("/user/resource/url")
     public Message downResource(@RequestBody String url,@CookieValue String userName){
         Message message = new Message(ResultCode.SUCCESS);

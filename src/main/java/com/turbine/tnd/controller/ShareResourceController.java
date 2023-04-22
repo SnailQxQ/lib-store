@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Turbine
@@ -111,13 +112,15 @@ public class ShareResourceController {
         s_sr.getShareResource(shareName,resp);
     }
 
-    @PostMapping("/user/resource/share/transfer/{shareName}")
-    public Message transferResource(@PathVariable String shareName,Integer parentId,@CookieValue String userName){
-        Message me = new Message(ResultCode.ERROR_500);
-        if(parentId == null || shareName == null)me.setResultCode(ResultCode.ERROR_400);
-        else{
 
-            if(s_sr.saveShareResource(shareName,parentId,userName)) me.setResultCode(ResultCode.SUCCESS);
+    //转存资源
+    @PostMapping("/user/resource/share/transfer/{parentId}")
+    public Message transferResource(@RequestBody List<ShareResourceDTO> shareResources, @PathVariable Integer parentId, @CookieValue String userName){
+        Message me = new Message(ResultCode.ERROR_500);
+        if(parentId == null || shareResources.size() == 0)me.setResultCode(ResultCode.ERROR_400);
+        else{
+           s_sr.saveShareResource(shareResources,parentId,userName);
+           me.setResultCode(ResultCode.SUCCESS);
         }
 
         return me;

@@ -61,4 +61,15 @@
         SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE d_flag=#{isRecycle} AND userId=#{userId} AND collect=#{collect}
     </select>
+
+
+    <select id="inquireFolders" resultType="Folder">
+        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+        FROM user_folder
+        WHERE   userId = #{userId}
+        AND d_flag=#{isRecycle}
+        <if test="parentId != null" >AND parentId = #{parentId}</if>
+        <if test="isCollect != null">AND collect = #{isCollect}</if>
+    </select>
+
 </mapper>
