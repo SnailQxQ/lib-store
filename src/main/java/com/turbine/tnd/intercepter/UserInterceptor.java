@@ -31,6 +31,8 @@ public class UserInterceptor implements HandlerInterceptor {
             || url.contains("/user/register")
             || url.contains("/user/resource/file/expire"))return true;
 
+        if( "user".equals(url.substring(1,url.lastIndexOf('/'))) )return true;
+
         if(cookies != null){
             for(Cookie cookie : cookies){
                 if( "token".equals( cookie.getName() ) )token = cookie.getValue();
