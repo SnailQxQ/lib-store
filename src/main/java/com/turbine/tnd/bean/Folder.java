@@ -17,9 +17,9 @@ public class Folder {
     private Integer userId;
     private Integer parentId;
     //是否删除
-    private boolean d_flag;
+    private boolean deleteFlag;
     //是否共享
-    private  boolean s_flag;
+    private  boolean  shareFlag;
     //是否为收藏资源
     private Boolean collect = false;
 

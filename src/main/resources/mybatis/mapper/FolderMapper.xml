@@ -17,11 +17,11 @@
                 ,parentId = #{parentId}
             </if>
 
-            <if test="d_flag != null">
-                ,d_flag = #{d_flag}
+            <if test="deleteFlag != null">
+                ,d_flag = #{deleteFlag}
             </if>
-            <if test="s_flag != null">
-                ,s_flag = #{s_flag}
+            <if test="shareFlag != null">
+                ,s_flag = #{shareFlag}
             </if>
             <if test="collect != null">
                 ,collect = #{collect}
@@ -30,14 +30,24 @@
         WHERE id = #{folderId}
     </update>
 
+    <resultMap id="folder" type="Folder">
+        <result property="folderId" column="id" />
+        <result property="createTime" column="createTime" />
+        <result property="folderName" column="name" />
+        <result property="userId" column="userId" />
+        <result property="parentId" column="parentId" />
+        <result property="deleteFlag" column="d_flag" />
+        <result property="shareFlag" column="s_flag" />
+        <result property="collect" column="collect" />
 
-    <select id="inquireFolderById" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+    </resultMap>
+    <select id="inquireFolderById" resultMap="folder" >
+        SELECT id  ,createTime,name ,userId,parentId,d_flag ,s_flag ,collect
         FROM user_folder WHERE id=#{folderId}
     </select>
 
-    <select id="inquireFolder" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+    <select id="inquireFolder" resultMap="folder">
+        SELECT id  ,createTime,name ,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE id=#{folderId} AND userId=#{userId}
     </select>
 
@@ -47,24 +57,24 @@
 
     <insert id="addFolder" useGeneratedKeys="true" keyColumn="id" keyProperty="folderId" parameterType="Folder">
         INSERT INTO user_folder(name,userId,parentId,s_flag,d_flag,collect)
-        VALUES(#{folderName},#{userId},#{parentId},#{s_flag},#{d_flag},#{collect})
+        VALUES(#{folderName},#{userId},#{parentId},#{shareFlag},#{deleteFlag},#{collect})
     </insert>
 
 
-    <select id="inquireParent" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+    <select id="inquireParent" resultMap="folder">
+        SELECT id ,createTime,name ,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE parentId = #{id}
     </select>
 
 
-    <select id="inquireCollectFolder" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+    <select id="inquireCollectFolder" resultMap="folder">
+        SELECT id ,createTime,name ,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE d_flag=#{isRecycle} AND userId=#{userId} AND collect=#{collect}
     </select>
 
 
-    <select id="inquireFolders" resultType="Folder">
-        SELECT id folderId ,createTime,name folderName,userId,parentId,d_flag,s_flag,collect
+    <select id="inquireFolders" resultMap="folder">
+        SELECT id ,createTime,name ,userId,parentId,d_flag,s_flag,collect
         FROM user_folder
         WHERE   userId = #{userId}
         AND d_flag=#{isRecycle}

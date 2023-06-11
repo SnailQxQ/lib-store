@@ -68,11 +68,11 @@ public class PublicResourceService {
 
         if(type == 0){
             Folder folder = fdao.inquireFolderById(userResourceId);
-            folder.setS_flag(true);
+            folder.setShareFlag(true);
             fdao.modifyFolder(folder);
         }else if(type == 1){
             UserResource ur = urdao.inquireUserResourceById(userResourceId);
-            ur.setS_flag(true);
+            ur.setShareFlag(true);
             urdao.modifyResource(ur);
         }
         PublicResource  pr = new PublicResource(name, filter.filtration(intro),userResourceId,type,0,0,user.getId());
@@ -99,18 +99,18 @@ public class PublicResourceService {
         if( p.getUserId() == user.getId() ){
             if(p.getType() == 0){
                 Folder folder = fdao.inquireFolderById(p.getUserResourceId());
-                folder.setS_flag(false);
+                folder.setShareFlag(false);
                 fdao.modifyFolder(folder);
             }else if(p.getType() == 1){
                 UserResource userResource = urdao.inquireUserResourceById(p.getUserResourceId());
-                userResource.setS_flag(false);
+                userResource.setShareFlag(false);
                 urdao.modifyResource(userResource);
             }
             if( prdao.removeResourceById(publicResourceId) > 0){
                 //处理收藏该资源的用户延迟到用户首次查询时处理
                 List<SubResource> subResource = srdao.inquireSubResourceByPId(publicResourceId);
                 for (SubResource e : subResource){
-                    e.setIsD_flag(true);
+                    e.setIsdeleteFlag(true);
                     srdao.modifySubResource(e);
                 }
                 re = true;
@@ -245,10 +245,10 @@ public class PublicResourceService {
             PublicResourceDTO dto = new PublicResourceDTO();
             if(p != null){
                 dto.assemble(p);
-                dto.setD_flag(e.getIsD_flag());
+                dto.setDeleteFlag(e.getIsdeleteFlag());
             }else{
                 //原资源已经被删除
-                dto.setD_flag(e.getIsD_flag());
+                dto.setDeleteFlag(e.getIsdeleteFlag());
                 dto.setName("资源已经被主人取消共享");
             }
 

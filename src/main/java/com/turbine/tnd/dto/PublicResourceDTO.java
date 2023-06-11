@@ -30,7 +30,7 @@ public class PublicResourceDTO {
     //仅做接收使用
     private  Integer parentId;
     //资源是否已经分享者取消
-    public  Boolean d_flag;
+    public  Boolean deleteFlag;
 
 
     public void assemble(PublicResource e) {

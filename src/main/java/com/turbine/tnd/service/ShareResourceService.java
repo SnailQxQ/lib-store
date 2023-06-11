@@ -184,7 +184,7 @@ public class ShareResourceService {
             sr.setType(0);
 
 
-            folder.setS_flag(true);
+            folder.setShareFlag(true);
             //递归修改分享标志
             s_r.recurModifyFolder(folder);
             if(usrdao.addShareResource(sr) > 0)re = shareName;
@@ -210,7 +210,7 @@ public class ShareResourceService {
             sr.setUserResourceId(ur.getId());
             sr.setType(1);
 
-            ur.setS_flag(true);
+            ur.setShareFlag(true);
             if(usrdao.addShareResource(sr) > 0 && urdao.modifyResource(ur) > 0)re = shareName;
         }
 
@@ -346,11 +346,11 @@ public class ShareResourceService {
         if(list.size() == 0){
             if(shareResource.getType() == 0){
                 Folder folder = fdao.inquireFolderById(shareResource.getUserResourceId());
-                folder.setS_flag(false);
+                folder.setShareFlag(false);
                 s_r.recurModifyFolder(folder);
             }else{
                 UserResource userResource = urdao.inquireUserResourceById(shareResource.getUserResourceId());
-                userResource.setS_flag(false);
+                userResource.setShareFlag(false);
                 urdao.modifyResource(userResource);
             }
         }
@@ -404,14 +404,17 @@ public class ShareResourceService {
             switch (re.getType()){
                 case 0: {
                     Folder folder = fdao.inquireFolderById(re.getUserResourceId());
-                    if(folder.isS_flag()){
+                    //s_ur.saveFolder(re.getUserResourceId(), userId, parentId);
+                    if(folder.isShareFlag()){
+                    // 这个bean类框架的自动装配的装配有问题
                         s_ur.saveFolder(re.getUserResourceId(), userId, parentId);
                     }
                     break;
                 }
                 case 1: {
                     UserResource userResource = urdao.inquireUserResourceById(re.getUserResourceId());
-                    if(userResource.getS_flag()){
+                    if(userResource.getShareFlag()){
+                        //userResource.setId(null);
                         s_ur.saveFile(userResource, parentId,userId);
                     }
                     break;

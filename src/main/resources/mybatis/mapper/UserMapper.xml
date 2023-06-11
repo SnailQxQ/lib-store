@@ -78,7 +78,7 @@
    </update>
 
     <select id="inquireFolder" resultType="FolderDTO">
-        SELECT id folderId,name folderName ,createTime,s_flag share FROM user_folder
+        SELECT id folderId,name folderName ,createTime,s_falg share FROM user_folder
         WHERE id = #{folderId}
     </select>
 

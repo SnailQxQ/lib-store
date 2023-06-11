@@ -62,7 +62,7 @@
     <select id="inquireShareResourceByUid" resultMap="sResource">
         SELECT id,shareName,u_id,u_r_id,fetchCode,createTime,survivalTime,clicks,downloads,type
         FROM  user_share_resource
-        WHERE u_id = #{userId}
+        WHERE u_id = #{userId} ORDER BY createTime DESC
     </select>
 
     <delete id="delelteShareResourceByRName" >

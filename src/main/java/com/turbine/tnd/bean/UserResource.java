@@ -30,9 +30,9 @@ public class UserResource {
     //是否加密
     private Boolean encryption = false;
     //删除标记
-    private Boolean d_flag = false;
+    private Boolean deleteFlag = false;
     //是否公开资源
-    private Boolean s_flag = false;
+    private Boolean shareFlag = false;
     //父文件id
     private Integer parentId;
     //类型id
@@ -60,8 +60,8 @@ public class UserResource {
         if(uResource.getOriginalName() != null)this.originalName = uResource.getOriginalName();
         if(uResource.getEncryptPsw() != null)this.encryptPsw = uResource.getEncryptPsw();
         if(uResource.getEncryption() != null)this.encryption = uResource.getEncryption();
-        if(uResource.getD_flag() != null)this.d_flag = uResource.getD_flag();
-        if(uResource.getS_flag() != null)this.s_flag = uResource.getS_flag();
+        if(uResource.getDeleteFlag() != null)this.deleteFlag = uResource.getDeleteFlag();
+        if(uResource.getShareFlag() != null)this.shareFlag = uResource.getShareFlag();
         if(uResource.getParentId() != null)this.parentId = uResource.getParentId();
         if(uResource.getTypeId() != null)this.typeId = uResource.getTypeId();
     }

@@ -50,7 +50,7 @@ public class ResourceService {
     public boolean setUserFolderStatus ( int folderId, Integer userId,boolean del,boolean delFlag){
         Folder folder = new Folder();
         folder.setFolderId(folderId);
-        folder.setD_flag(delFlag);
+        folder.setDeleteFlag(delFlag);
 
         boolean flag = false;
 
@@ -64,7 +64,7 @@ public class ResourceService {
                     UserResource newRe = new UserResource();
                     newRe.setId(re.getId());
                     newRe.setFileName(re.getFileId());
-                    newRe.setD_flag(delFlag);
+                    newRe.setDeleteFlag(delFlag);
                     newRe.setU_id(userId);
 
                     urdao.modifyResource(newRe);
@@ -123,8 +123,8 @@ public class ResourceService {
                 UserResource newRe = new UserResource();
                 newRe.setId(re.getId());
                 newRe.setFileName(re.getFileId());
-                newRe.setD_flag(folder.isD_flag());
-                newRe.setS_flag(folder.isS_flag());
+                newRe.setDeleteFlag(folder.isDeleteFlag());
+                newRe.setShareFlag(folder.isShareFlag());
                 newRe.setU_id(folder.getUserId());
 
                 urdao.modifyResource(newRe);
@@ -132,8 +132,8 @@ public class ResourceService {
         }
         if (folders != null) {
             for (Folder f : folders) {
-                f.setS_flag(folder.isS_flag());
-                f.setD_flag(folder.isD_flag());
+                f.setShareFlag(folder.isShareFlag());
+                f.setDeleteFlag(folder.isDeleteFlag());
                 recurModifyFolder(f);
             }
         }

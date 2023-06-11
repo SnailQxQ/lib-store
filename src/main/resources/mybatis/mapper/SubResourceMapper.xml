@@ -8,11 +8,11 @@
         <id column="id" property="id"></id>
         <result column="u_id" property="userId"></result>
         <result column="p_r_id" property="publicResourceId"></result>
-        <result column="d_flag" property="isD_flag"></result>
+        <result column="d_flag" property="isdeleteFlag"></result>
     </resultMap>
 
     <insert id="addSubResource" parameterType="SubResource">
-        INSERT  INTO resource_subscribe (u_id,p_r_id,d_flag) VALUES (#{userId},#{publicResourceId},#{isD_flag})
+        INSERT  INTO resource_subscribe (u_id,p_r_id,deleteFlag) VALUES (#{userId},#{publicResourceId},#{isdeleteFlag})
     </insert>
 
     <update id="modifySubResource" parameterType="SubResource">
@@ -24,13 +24,13 @@
             <if test="publicResourceId != null">
                 ,p_r_id = #{publicResourceId}
             </if>
-            <if test="isD_flag != null">
-                ,d_flag = #{isD_flag}
+            <if test="isdeleteFlag != null">
+                ,d_flag = #{isdeleteFlag}
             </if>
         </set>
         WHERE id = #{id}
     </update>
-    <!-- id,u_id userId,p_r_id publicResourceId,d_flag -->
+    <!-- id,u_id userId,p_r_id publicResourceId,deleteFlag -->
     <select id="inquireSubResource" resultMap="sub_resource">
         SELECT id,u_id,p_r_id,d_flag FROM resource_subscribe WHERE u_id = #{userId}
     </select>

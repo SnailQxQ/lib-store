@@ -473,8 +473,8 @@ public class UserResourceService {
             rr.setU_id(user.getId());
             rr.setTypeId(1);
 
-            if (model == 0 && ur != null &&  !ur.getD_flag()) {
-                ur.setD_flag(true);
+            if (model == 0 && ur != null &&  !ur.getDeleteFlag()) {
+                ur.setDeleteFlag(true);
                 if (urdao.modifyResource(ur) > 0 && rrdao.addResourceRecycle(rr) > 0) {
                     usrdao.delelteShareResourceByURId(ur.getId());
                     result = true;
@@ -538,7 +538,7 @@ public class UserResourceService {
     public boolean setUserFolderStatus ( int folderId, Integer userId,boolean del,boolean delFlag){
         Folder folder = new Folder();
         folder.setFolderId(folderId);
-        folder.setD_flag(delFlag);
+        folder.setDeleteFlag(delFlag);
 
         boolean flag = false;
 
@@ -552,7 +552,7 @@ public class UserResourceService {
                     UserResource newRe = new UserResource();
                     newRe.setId(re.getId());
                     newRe.setFileName(re.getFileId());
-                    newRe.setD_flag(delFlag);
+                    newRe.setDeleteFlag(delFlag);
                     newRe.setU_id(userId);
 
                     urdao.modifyResource(newRe);
@@ -667,7 +667,7 @@ public class UserResourceService {
         folder.setUserId(userId);
         folder.setCreateTime(null);
         folder.setParentId(parentId);
-        folder.setS_flag(false);
+        folder.setShareFlag(false);
 
         if(fdao.addFolder(folder) > 0){
             List<UserResource> resources = urdao.inquireUserResourceByParentId(folderId,originalU_id,false);
@@ -685,12 +685,13 @@ public class UserResourceService {
 
 
     public void saveFile(UserResource resource,Integer parentId,Integer userId) {
+        resource.setId(null);
         resource.setU_id(userId);
         resource.setUploadTime(null);
         resource.setParentId(parentId);
         resource.setEncryption(false);
         resource.setEncryptPsw(null);
-        resource.setS_flag(false);
+        resource.setShareFlag(false);
 
         urdao.addUserResource(resource);
     }

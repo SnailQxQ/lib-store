@@ -69,7 +69,7 @@ public class RecycleResourceService {
             User user = udao.inquireByName(userName);
             if(user != null){
                 UserResource ur = urdao.inquireUserResourceByName(user.getId(), fileId,parentId);
-                ur.setD_flag(false);
+                ur.setdeleteFlag(false);
                 flag = recoverResource(ur);
             }
 
@@ -79,7 +79,7 @@ public class RecycleResourceService {
     public boolean recoverResource(Integer userResourceId) {
         boolean flag = false;
         UserResource ur = urdao.inquireUserResourceById(userResourceId);
-        ur.setD_flag(false);
+        ur.setDeleteFlag(false);
         flag = recoverResource(ur);
 
         return flag;
@@ -102,7 +102,7 @@ public class RecycleResourceService {
         boolean flag = false;
 
         if (parentFolder != null){
-            parentFolder.setD_flag(false);
+            parentFolder.setDeleteFlag(false);
             fdao.modifyFolder(parentFolder);
             flag = recoverFolder(parentFolder.getParentId(),userId);
         }else{

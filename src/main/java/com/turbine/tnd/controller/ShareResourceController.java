@@ -69,13 +69,13 @@ public class ShareResourceController {
             }
             case 1:{
                 //查询指定用户资源
-                if(name != null)data = s_sr.getOneShareResource(name,fetchCode);
+                if(name != null && !"".equals(name))data = s_sr.getOneShareResource(name,fetchCode);
                 else message.setResultCode(ResultCode.ERROR_400);
                 break;
             }
             case 2:{
                 //模糊查询指定用户资源
-                if(userName == null){
+                if(userName == null && !"".equals(name)){
                     message.setResultCode(ResultCode.ERROR_401);
                     return message;
                 }

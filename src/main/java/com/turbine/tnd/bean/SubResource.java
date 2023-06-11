@@ -14,7 +14,7 @@ public class SubResource {
     private Integer id;
     private Integer userId;
     private Integer publicResourceId;
-    private Boolean isD_flag = false;//不能用 d_flag ibatis解会出问题 注入不了值。
+    private Boolean isdeleteFlag = false;//不能用 deleteFlag ibatis解会出问题 注入不了值。
 
     public SubResource(){}
 

@@ -20,12 +20,12 @@
                 ,encryption = #{encryption}
             </if>
 
-            <if test="d_flag != null">
-                ,d_flag = #{d_flag}
+            <if test="deleteFlag != null">
+                ,d_flag = #{deleteFlag}
             </if>
 
-            <if test="s_flag != null">
-                ,s_flag = #{s_flag}
+            <if test="shareFlag != null">
+                ,s_flag = #{shareFlag}
             </if>
 
             <if test="parentId != null">
@@ -55,15 +55,16 @@
         <result column="originalName" property="originalName"></result>
         <result column="encryptPsw" property="encryptPsw"></result>
         <result column="encryption" property="encryption"></result>
-        <result column="d_flag" property="d_flag"></result>
-        <result column="s_flag" property="s_flag"></result>
+        <result column="d_flag" property="deleteFlag"></result>
+        <result column="s_flag" property="shareFlag"></result>
         <result column="parentId" property="parentId"></result>
         <result column="collect" property="collect"></result>
+        <result column="typeId" property="typeId"></result>
         <result column="thumbnail" property="thumbnail"></result>
     </resultMap>
 
     <select id="inquireUserResourceByName" resultMap="uResource" >
-        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,collect,thumbnail
+        SELECT id,u_id,r_id,fileName,typeId,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,collect,thumbnail
         FROM user_resource
         WHERE u_id = #{u_id} AND fileName=#{fileId} AND parentId = #{parentId}
         <if test="fileName != null">
@@ -72,20 +73,20 @@
     </select>
 
     <select id="inquireUserResourceById" resultMap="uResource" >
-        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,collect,thumbnail
+        SELECT id,u_id,r_id,fileName,typeId,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,collect,thumbnail
         FROM user_resource
         WHERE id=#{userResourceId}
     </select>
 
     <select id="inquireUserResourceByrid" resultMap="uResource" >
-        SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,collect,thumbnail
+        SELECT id,u_id,r_id,fileName,typeId,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,collect,thumbnail
         FROM user_resource
         WHERE r_id=#{resourceId}
     </select>
 
     <insert id="addUserResource"  keyColumn="id" useGeneratedKeys="true" keyProperty="id" parameterType="UserResource">
         INSERT INTO user_resource(u_id,r_id,fileName,originalName,s_flag,d_flag,encryption,encryptPsw,parentId,typeId,collect,thumbnail)
-        VALUES(#{u_id},#{resourceId},#{fileName},#{originalName},#{s_flag},#{d_flag},#{encryption},#{encryptPsw},#{parentId},#{typeId},#{collect},#{thumbnail})
+        VALUES(#{u_id},#{resourceId},#{fileName},#{originalName},#{shareFlag},#{deleteFlag},#{encryption},#{encryptPsw},#{parentId},#{typeId},#{collect},#{thumbnail})
     </insert>
 
 
@@ -96,7 +97,7 @@
     <select id="inquireUserResourceByParentId" resultMap="uResource">
         SELECT id,u_id,r_id,fileName,uploadTime,originalName,encryptPsw,encryption,d_flag,s_flag,parentId,typeId,collect,thumbnail
         FROM user_resource
-        WHERE parentId = #{parentId} AND u_id = #{userId} AND d_flag = #{d_flag};
+        WHERE parentId = #{parentId} AND u_id = #{userId} AND d_flag = #{deleteFlag};
     </select>
 
 
