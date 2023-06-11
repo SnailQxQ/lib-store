@@ -12,7 +12,7 @@
     </resultMap>
 
     <insert id="addSubResource" parameterType="SubResource">
-        INSERT  INTO resource_subscribe (u_id,p_r_id,deleteFlag) VALUES (#{userId},#{publicResourceId},#{isdeleteFlag})
+        INSERT  INTO resource_subscribe (u_id,p_r_id,d_flag) VALUES (#{userId},#{publicResourceId},#{isdeleteFlag})
     </insert>
 
     <update id="modifySubResource" parameterType="SubResource">
