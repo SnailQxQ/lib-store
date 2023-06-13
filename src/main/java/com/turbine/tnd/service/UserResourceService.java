@@ -166,7 +166,7 @@ public class UserResourceService {
         Folder folder = fdao.inquireFolderById(parentId);
         ResourceFolder rfdto = new ResourceFolder();
         if (folder != null){
-            List<FolderDTO> folders = udao.inquireUserFolders(parentId,folder.getUserId(), false,null);
+            List<FolderDTO> folders = fdao.inquireUserFolders(parentId,folder.getUserId(), false,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(parentId,folder.getUserId(), false,null);
             rfdto.setFolders(folders);
             rfdto.setResources(resources);
@@ -180,7 +180,7 @@ public class UserResourceService {
         User user = udao.inquireByName(userName);
         ResourceFolder rfdto = new ResourceFolder();
         fdao.inquireCollectFolder(user.getId(),false,collect);
-        List<FolderDTO> folders = udao.inquireUserFolders(parentId, user.getId(), false, collect);
+        List<FolderDTO> folders = fdao.inquireUserFolders(parentId, user.getId(), false, collect);
         List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(parentId, user.getId(), false, collect);
 
         rfdto.setFolders(folders);
@@ -248,7 +248,7 @@ public class UserResourceService {
         User user = udao.inquireByName(userName);
         Folder folder = new Folder(new Date(System.currentTimeMillis()), folderName, user.getId(), parentId);
 
-        if (user != null && udao.addUserFolder(folder) > 0) {
+        if (user != null && fdao.addUserFolder(folder) > 0) {
             FolderDTO folderDTO = new FolderDTO(folder);
 
             message.setResultCode(ResultCode.SUCCESS);
@@ -545,7 +545,7 @@ public class UserResourceService {
         //逻辑删除
         if (!del ) {
             fdao.modifyFolder(folder);//设置文件夹自己为删除状态
-            List<FolderDTO> folders = udao.inquireUserFolders(folderId, userId, !delFlag,null);
+            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -569,7 +569,7 @@ public class UserResourceService {
             //物理删除
             folder.setUserId(userId);
             fdao.removeFolder(folder);
-            List<FolderDTO> folders = udao.inquireUserFolders(folderId, userId, true,null);
+            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, true,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, true,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -603,7 +603,7 @@ public class UserResourceService {
 
     private boolean FolderIsEmpty(Integer folderId,Integer userId) {
         boolean re = false;
-        List<FolderDTO> folderDTOS = udao.inquireUserFolders(folderId, userId, false,null);
+        List<FolderDTO> folderDTOS = fdao.inquireUserFolders(folderId, userId, false,null);
         List<UserResource> userResources = urdao.inquireUserResourceByParentId(folderId,userId,false);
         if(userResources.size() > 0)return re;
         else {
@@ -675,7 +675,7 @@ public class UserResourceService {
                 //在该文件夹下继续存储资源文件
                 saveFile(resource,folder.getFolderId(),userId);
             }
-            List<FolderDTO> folders = udao.inquireUserFolders(folderId, originalU_id, false,null);
+            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, originalU_id, false,null);
             for(FolderDTO f : folders){
                 saveFolder(f.getFolderId(),userId,folder.getFolderId());
             }
@@ -739,7 +739,7 @@ public class UserResourceService {
      * @date 2023/2/4 15:55
      */
     public void buildCompressFolder(ZipOutputStream zipOutput, Integer parentId, Integer userId, String dir) throws IOException {
-        List<FolderDTO> folders = udao.inquireUserFolders(parentId, userId, false,null);
+        List<FolderDTO> folders = fdao.inquireUserFolders(parentId, userId, false,null);
         List<ResourceDTO> resource = rdao.inquireUserResourceByParentId(parentId, userId, false,null);
 
         ZipEntry entry = null;

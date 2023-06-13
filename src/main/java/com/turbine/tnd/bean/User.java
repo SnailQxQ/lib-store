@@ -17,24 +17,14 @@ public class User {
    private String sequence;
    private Object profile;
    private String intro;
-
+   private String email;
 
 
    public boolean isValid(){
       return userName != null && password != null;
    }
 
-   @Override
-   public String toString() {
-      return "User{" +
-              "id=" + id +
-              ", userName='" + userName + '\'' +
-              ", password='" + password + '\'' +
-              ", sequence='" + sequence + '\'' +
-              '}';
 
-
-   }
 
 
 }

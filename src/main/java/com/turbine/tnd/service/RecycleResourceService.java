@@ -112,7 +112,7 @@ public class RecycleResourceService {
             folder.setUserId(userId);
             folder.setCreateTime(new Date(System.currentTimeMillis()));
             folder.setParentId(0);
-            flag = udao.addUserFolder(folder) > 0;
+            flag = fdao.addUserFolder(folder) > 0;
         }
         return  flag;
     }

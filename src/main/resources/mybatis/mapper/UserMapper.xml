@@ -14,7 +14,7 @@
     </select>
 
     <select id="inquireByName" parameterType="User" resultType="User">
-        SELECT userId id,userName,profile,intro FROM user WHERE userName = #{userName}
+        SELECT userId id,userName,profile,intro,email FROM user WHERE userName = #{userName}
     </select>
 
 
@@ -40,27 +40,12 @@
             <if test="intro != null">
                 ,intro = #{intro}
             </if>
+            <if test="email != null">
+                ,email = #{email}
+            </if>
         </set>
          WHERE userId = #{id}
     </update>
-
-    <!--inquireUserFolders-->
-    <select id="inquireUserFolders" resultType="FolderDTO">
-        SELECT id folderId,name folderName ,createTime,collect,s_flag share FROM user_folder
-        WHERE   userId = #{userId}
-                AND d_flag=#{isRecycle}
-          <if test="parentId != null" >AND parentId = #{parentId}</if>
-        <if test="isCollect != null">AND collect = #{isCollect}</if>
-    </select>
-
-    <select id="inquireUserFolderById" resultType="FolderDTO">
-        SELECT id folderId,name folderName ,createTime,collect,s_flag share FROM user_folder WHERE id = #{folderId}
-    </select>
-
-
-    <insert id="addUserFolder"  useGeneratedKeys="true" keyColumn="id"  keyProperty="folderId">
-        INSERT INTO user_folder(name,userId,parentId) VALUES(#{folderName},#{userId},#{parentId})
-    </insert>
 
     <select id="inquireById" resultType="User">
         SELECT userId id,userName,password,sequence,profile,intro FROM user
@@ -82,7 +67,6 @@
         WHERE id = #{folderId}
     </select>
 
-
-
+    
 
 </mapper>

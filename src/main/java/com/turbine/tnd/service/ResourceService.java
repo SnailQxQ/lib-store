@@ -57,7 +57,7 @@ public class ResourceService {
         //逻辑删除
         if (!del ) {
             fdao.modifyFolder(folder);//设置文件夹自己为删除状态
-            List<FolderDTO> folders = udao.inquireUserFolders(folderId, userId, !delFlag,null);
+            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -81,7 +81,7 @@ public class ResourceService {
             //物理删除
             folder.setUserId(userId);
             fdao.removeFolder(folder);
-            List<FolderDTO> folders = udao.inquireUserFolders(folderId, userId, !delFlag,null);
+            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {

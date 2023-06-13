@@ -159,4 +159,11 @@ public class test1 {
     }
 
 
+    @Test
+    public void test11(){
+        User admin = udao.inquireByName("admin");
+        System.out.println(admin);
+    }
+
+
 }
