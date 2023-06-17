@@ -111,7 +111,7 @@ public class ShareResourceService {
     //下载的资源为文件夹形式需要进行压缩操作再发送（保持原有的文件结构）
     private void getShareFolder(ShareResource sr, Integer userId, OutputStream os) {
         int folderId = sr.getUserResourceId();
-        List<FolderDTO> folderDTOS = fdao.inquireUserFolders(folderId, userId, false,null);
+        List<Folder> folderDTOS = fdao.inquireUserFolders(folderId, userId, false,null);
 
         UserResource ur = urdao.inquireUserResourceById(sr.getUserResourceId());
         File zipF = new File(tempDir + File.separator + ur.getOriginalName() + ".zip");
@@ -405,7 +405,7 @@ public class ShareResourceService {
                 case 0: {
                     Folder folder = fdao.inquireFolderById(re.getUserResourceId());
                     //s_ur.saveFolder(re.getUserResourceId(), userId, parentId);
-                    if(folder.isShareFlag()){
+                    if(folder.getShareFlag()){
                     // 这个bean类框架的自动装配的装配有问题
                         s_ur.saveFolder(re.getUserResourceId(), userId, parentId);
                     }

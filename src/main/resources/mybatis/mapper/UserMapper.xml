@@ -54,19 +54,4 @@
         </where>
     </select>
 
-   <update id="modifyFolderName" >
-       UPDATE user_folder SET name = #{folderName} WHERE id = #{folderId}
-   </update>
-
-    <update id="modifyFileName" >
-       UPDATE user_resource SET originalName = #{newName} WHERE fileName = #{fileId}
-   </update>
-
-    <select id="inquireFolder" resultType="FolderDTO">
-        SELECT id folderId,name folderName ,createTime,s_falg share FROM user_folder
-        WHERE id = #{folderId}
-    </select>
-
-    
-
 </mapper>

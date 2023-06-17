@@ -53,6 +53,11 @@ public class UserResource {
         this.typeId = type_id;
     }
 
+    public UserResource(String fileName, String originalName) {
+        this.fileName = fileName;
+        this.originalName = originalName;
+    }
+
     public void assemble(UserResource uResource) {
         if(uResource.getU_id() != null)this.u_id = uResource.getU_id();
         if(uResource.getFileName() != null)this.fileName = uResource.getFileName();

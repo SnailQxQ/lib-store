@@ -24,16 +24,8 @@ public interface UserDao {
     int updateUser(User user);
     //根据用户名查询用户
     User inquireByName(String userName);
-
-
-    int modifyFolderName(int folderId,String folderName);
-
-    int modifyFileName(String fileId, String newName);
     //传入id时就根据指定id查询否则就查询全体
-    User inquireById(@Param("userId")int userId);
-
-
-    FolderDTO inquireFolder(int folderId);
+    User inquireById(@Param("userId")Integer userId);
 
     int addUser(User user);
 

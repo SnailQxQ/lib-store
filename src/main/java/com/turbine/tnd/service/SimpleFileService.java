@@ -5,6 +5,7 @@ import com.turbine.tnd.bean.ResourceType;
 import com.turbine.tnd.bean.UserResource;
 import com.turbine.tnd.config.UploadFileConfig;
 import com.turbine.tnd.dao.ResourceDao;
+import com.turbine.tnd.dao.UserResourceDao;
 import com.turbine.tnd.utils.CommandUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,8 @@ public class SimpleFileService{
 
     @Autowired
     ResourceDao redao;
+    @Autowired
+    UserResourceDao urdao;
 
     //简单文件上传
 
@@ -59,7 +62,7 @@ public class SimpleFileService{
             if( "".equals(name) )return false;
             //秒传支持
             if(!hasExist(name)){
-                System.out.println("文件MD5："+name);
+                //System.out.println("文件MD5："+name);
                 //创建按照这个目录创建，传输的时候会自带上设置的前缀 先用临时文件创建来解决
                 String dir = File.separator+date.getYear()+File.separator+date.getMonth()+File.separator+date.getDayOfMonth();
 
@@ -85,7 +88,7 @@ public class SimpleFileService{
                 re.setFileName(name);
 
                 redao.addResource(re);
-                redao.addResourceUser(userId,re.getId(),name,resourceName,parentId,typeId);
+                urdao.addUserResource(new UserResource(userId,re.getId(),name,resourceName,parentId,typeId));
                 redao.addReourceType(name,typeId);
                 //若为视频文件则对应进行视频处理
                 if( ".mp4".equals(suffix) ){
@@ -104,7 +107,7 @@ public class SimpleFileService{
                 }
             }else {
                 Resource resource = redao.inquireByName(name);
-                redao.addResourceUser(userId,resource.getId(),name,resourceName,parentId,typeId);
+                urdao.addUserResource(new UserResource(userId,resource.getId(),name,resourceName,parentId,typeId));
                 log.debug("文件已经存在 MD5: "+name);
             }
 

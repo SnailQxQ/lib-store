@@ -19,7 +19,7 @@ public class ResourceDTO {
     //是否共享
     private boolean share;
     //是否加密
-    private boolean isEncrypt;
+    private boolean encrypt;
     //创建时间
     private Date createTime;
     //文件类型
@@ -39,7 +39,7 @@ public class ResourceDTO {
         if(ur.getId() != null)this.id = ur.getId();
         if(ur.getOriginalName() != null)this.fileName = ur.getOriginalName();
         if(ur.getShareFlag() != null)this.share = ur.getShareFlag();
-        if(ur.getEncryption() != null)this.isEncrypt = ur.getEncryption();
+        if(ur.getEncryption() != null)this.encrypt = ur.getEncryption();
         if(ur.getUploadTime() != null)this.createTime = ur.getUploadTime();
         if(ur.getFileName() != null)this.fileId = ur.getFileName();
         if(ur.getThumbnail() != null)this.thumbnail = (String)ur.getThumbnail();

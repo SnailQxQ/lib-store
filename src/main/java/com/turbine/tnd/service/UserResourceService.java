@@ -166,9 +166,9 @@ public class UserResourceService {
         Folder folder = fdao.inquireFolderById(parentId);
         ResourceFolder rfdto = new ResourceFolder();
         if (folder != null){
-            List<FolderDTO> folders = fdao.inquireUserFolders(parentId,folder.getUserId(), false,null);
+            List<Folder> folders = fdao.inquireUserFolders(parentId,folder.getUserId(), false,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(parentId,folder.getUserId(), false,null);
-            rfdto.setFolders(folders);
+            rfdto.assembleFolderDTO(folders);
             rfdto.setResources(resources);
         }
 
@@ -180,10 +180,10 @@ public class UserResourceService {
         User user = udao.inquireByName(userName);
         ResourceFolder rfdto = new ResourceFolder();
         fdao.inquireCollectFolder(user.getId(),false,collect);
-        List<FolderDTO> folders = fdao.inquireUserFolders(parentId, user.getId(), false, collect);
+        List<Folder> folders = fdao.inquireUserFolders(parentId, user.getId(), false, collect);
         List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(parentId, user.getId(), false, collect);
 
-        rfdto.setFolders(folders);
+        rfdto.assembleFolderDTO(folders);
         rfdto.setResources(resources);
 
         return  rfdto;
@@ -239,7 +239,8 @@ public class UserResourceService {
      * @date 2023/1/13 12:22
      */
     public boolean hasResource(int userResourceId, Integer userId) {
-        return urdao.inquireUserResourceById(userResourceId).getU_id() == userId ;
+        UserResource userResource = urdao.inquireUserResourceById(userResourceId);
+        return userResource == null ? false : userResource.getU_id() == userId ;
     }
 
     //创建文件夹
@@ -396,18 +397,19 @@ public class UserResourceService {
     }
 
 
+    //TODO:修改文件名有问题，fileId 在用户资源中可能存在多份
     /**
      * @param fileId
      * @param newName
      * @return
      */
-    public Message modifyFileName(String fileId, String newName) {
+   /* public Message modifyFileName(String fileId, String newName) {
         Message message = new Message();
         if (udao.modifyFileName(fileId, newName) > 0) message.setResultCode(ResultCode.SUCCESS);
         else message.setResultCode(ResultCode.ERROR_500);
 
         return message;
-    }
+    }*/
 
     public boolean FolderIsExist(int folderId) {
         return fdao.inquireFolderById(folderId) != null ;
@@ -545,7 +547,7 @@ public class UserResourceService {
         //逻辑删除
         if (!del ) {
             fdao.modifyFolder(folder);//设置文件夹自己为删除状态
-            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
+            List<Folder> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -559,7 +561,7 @@ public class UserResourceService {
                 }
             }
             if (folders != null) {
-                for (FolderDTO ele : folders) {
+                for (Folder ele : folders) {
                     setUserFolderStatus(ele.getFolderId(),userId,del,delFlag);
                 }
             }
@@ -569,7 +571,7 @@ public class UserResourceService {
             //物理删除
             folder.setUserId(userId);
             fdao.removeFolder(folder);
-            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, true,null);
+            List<Folder> folders = fdao.inquireUserFolders(folderId, userId, true,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, true,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -582,7 +584,7 @@ public class UserResourceService {
                 }
             }
             if (folders != null) {
-                for (FolderDTO ele : folders) {
+                for (Folder ele : folders) {
                     setUserFolderStatus(ele.getFolderId(),userId,del,delFlag);
                 }
             }
@@ -603,11 +605,11 @@ public class UserResourceService {
 
     private boolean FolderIsEmpty(Integer folderId,Integer userId) {
         boolean re = false;
-        List<FolderDTO> folderDTOS = fdao.inquireUserFolders(folderId, userId, false,null);
+        List<Folder> folderDTOS = fdao.inquireUserFolders(folderId, userId, false,null);
         List<UserResource> userResources = urdao.inquireUserResourceByParentId(folderId,userId,false);
         if(userResources.size() > 0)return re;
         else {
-            for(FolderDTO f : folderDTOS){
+            for(Folder f : folderDTOS){
                 if(!FolderIsEmpty(f.getFolderId(), userId))return re;
             }
         }
@@ -675,8 +677,8 @@ public class UserResourceService {
                 //在该文件夹下继续存储资源文件
                 saveFile(resource,folder.getFolderId(),userId);
             }
-            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, originalU_id, false,null);
-            for(FolderDTO f : folders){
+            List<Folder> folders = fdao.inquireUserFolders(folderId, originalU_id, false,null);
+            for(Folder f : folders){
                 saveFolder(f.getFolderId(),userId,folder.getFolderId());
             }
         }
@@ -739,11 +741,11 @@ public class UserResourceService {
      * @date 2023/2/4 15:55
      */
     public void buildCompressFolder(ZipOutputStream zipOutput, Integer parentId, Integer userId, String dir) throws IOException {
-        List<FolderDTO> folders = fdao.inquireUserFolders(parentId, userId, false,null);
+        List<Folder> folders = fdao.inquireUserFolders(parentId, userId, false,null);
         List<ResourceDTO> resource = rdao.inquireUserResourceByParentId(parentId, userId, false,null);
 
         ZipEntry entry = null;
-        FolderDTO folderDTO = udao.inquireFolder(parentId);
+        Folder folderDTO = fdao.inquireFolderById(parentId);
         //创建当前级目录
         if(dir.equals("")){
             dir = folderDTO.getFolderName();
@@ -783,7 +785,7 @@ public class UserResourceService {
 
 
         if(folders != null){
-            for(FolderDTO f : folders){
+            for(Folder f : folders){
                 buildCompressFolder(zipOutput,f.getFolderId(),userId,dir);
             }
         }

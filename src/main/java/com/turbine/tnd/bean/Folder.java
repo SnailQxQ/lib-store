@@ -11,15 +11,16 @@ import java.sql.Date;
  */
 @Data
 public class Folder {
+
     private Integer folderId;
     private Date createTime;
     private String folderName;
     private Integer userId;
     private Integer parentId;
     //是否删除
-    private boolean deleteFlag;
+    private Boolean deleteFlag;
     //是否共享
-    private  boolean  shareFlag;
+    private  Boolean  shareFlag;
     //是否为收藏资源
     private Boolean collect = false;
 

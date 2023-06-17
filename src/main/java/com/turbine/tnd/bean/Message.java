@@ -17,8 +17,6 @@ public class  Message {
     private String message;
     private Object data;
 
-
-
     public Message(){}
 
     public Message(ResultCode result){

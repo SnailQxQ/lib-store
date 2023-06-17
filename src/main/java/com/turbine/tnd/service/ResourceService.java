@@ -57,7 +57,7 @@ public class ResourceService {
         //逻辑删除
         if (!del ) {
             fdao.modifyFolder(folder);//设置文件夹自己为删除状态
-            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
+            List<Folder> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -71,7 +71,7 @@ public class ResourceService {
                 }
             }
             if (folders != null) {
-                for (FolderDTO ele : folders) {
+                for (Folder ele : folders) {
                     setUserFolderStatus(ele.getFolderId(),userId,del,delFlag);
                 }
             }
@@ -81,7 +81,7 @@ public class ResourceService {
             //物理删除
             folder.setUserId(userId);
             fdao.removeFolder(folder);
-            List<FolderDTO> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
+            List<Folder> folders = fdao.inquireUserFolders(folderId, userId, !delFlag,null);
             List<ResourceDTO> resources = rdao.inquireUserResourceByParentId(folderId, userId, !delFlag,null);
             if (resources != null) {
                 for (ResourceDTO re : resources) {
@@ -94,7 +94,7 @@ public class ResourceService {
                 }
             }
             if (folders != null) {
-                for (FolderDTO ele : folders) {
+                for (Folder ele : folders) {
                     setUserFolderStatus(ele.getFolderId(),userId,del,delFlag);
                 }
             }
@@ -123,8 +123,8 @@ public class ResourceService {
                 UserResource newRe = new UserResource();
                 newRe.setId(re.getId());
                 newRe.setFileName(re.getFileId());
-                newRe.setDeleteFlag(folder.isDeleteFlag());
-                newRe.setShareFlag(folder.isShareFlag());
+                newRe.setDeleteFlag(folder.getDeleteFlag() );
+                newRe.setShareFlag(folder.getShareFlag() );
                 newRe.setU_id(folder.getUserId());
 
                 urdao.modifyResource(newRe);
@@ -132,8 +132,8 @@ public class ResourceService {
         }
         if (folders != null) {
             for (Folder f : folders) {
-                f.setShareFlag(folder.isShareFlag());
-                f.setDeleteFlag(folder.isDeleteFlag());
+                f.setShareFlag(folder.getShareFlag());
+                f.setDeleteFlag(folder.getDeleteFlag());
                 recurModifyFolder(f);
             }
         }

@@ -46,6 +46,7 @@
         FROM user_folder WHERE id=#{folderId}
     </select>
 
+
     <select id="inquireFolder" resultMap="folder">
         SELECT id  ,createTime,name ,userId,parentId,d_flag,s_flag,collect
         FROM user_folder WHERE id=#{folderId} AND userId=#{userId}
@@ -85,7 +86,7 @@
 
 
     <!--inquireUserFolders-->
-    <select id="inquireUserFolders" resultType="FolderDTO">
+    <select id="inquireUserFolders" resultType="Folder">
         SELECT id folderId,name folderName ,createTime,collect,s_flag share FROM user_folder
         WHERE   userId = #{userId}
         AND d_flag=#{isRecycle}
@@ -93,9 +94,9 @@
         <if test="isCollect != null">AND collect = #{isCollect}</if>
     </select>
 
-    <select id="inquireUserFolderById" resultType="FolderDTO">
+    <!--<select id="inquireUserFolderById" resultType="FolderDTO">
         SELECT id folderId,name folderName ,createTime,collect,s_flag share FROM user_folder WHERE id = #{folderId}
-    </select>
+    </select>-->
 
 
     <insert id="addUserFolder"  useGeneratedKeys="true" keyColumn="id"  keyProperty="folderId">

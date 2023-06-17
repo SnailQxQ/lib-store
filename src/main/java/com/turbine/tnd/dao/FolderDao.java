@@ -30,9 +30,8 @@ public interface FolderDao {
     List<Folder> inquireFolders(Integer parentId, Integer userId, Boolean isRecycle, Boolean isCollect);
 
     //查询指定用户下的指定文件夹下的所有文件夹
-    List<FolderDTO> inquireUserFolders(Integer parentId, int userId, Boolean isRecycle, Boolean isCollect);
+    List<Folder> inquireUserFolders(Integer parentId, int userId, Boolean isRecycle, Boolean isCollect);
 
-    FolderDTO inquireUserFolderById(int folderId);
     //创建文件目录
     int addUserFolder(Folder folder);
 }

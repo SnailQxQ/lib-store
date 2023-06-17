@@ -21,9 +21,9 @@
     </insert>
 
     <!--table : user_resource -->
-    <insert id="addResourceUser">
+    <!--<insert id="addResourceUser">
         INSERT INTO user_resource(u_id,r_id,fileName,originalName,parentId,typeId) VALUES( #{u_id},#{resourceId},#{fileName},#{originalName},#{parentId},#{typeId} )
-    </insert>
+    </insert>-->
 
 
     <select id="inquireType" resultType="ResourceType">
@@ -67,7 +67,7 @@
         <result column="uploadTime" property="createTime"></result>
         <result column="fileName" property="fileId"></result>
         <result column="s_flag" property="share"></result>
-        <result column="encryption" property="isEncrypt"></result>
+        <result column="encryption" property="encrypt"></result>
         <result column="thumbnail" property="thumbnail"></result>
         <result column="collect" property="collect"></result>
         <association property="fileType"

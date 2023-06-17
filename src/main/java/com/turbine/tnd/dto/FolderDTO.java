@@ -26,6 +26,6 @@ public class FolderDTO {
         this.createTime = folder.getCreateTime();
         this.folderName = folder.getFolderName();
         this.collect = folder.getCollect();
-        this.share = folder.isShareFlag();
+        this.share = folder.getShareFlag();
     }
 }

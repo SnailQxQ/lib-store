@@ -32,7 +32,7 @@ public interface ResourceDao {
      * @param u_id          用户id
      * @param fileName      资源名 uuid
      */
-    void addResourceUser(int u_id,int resourceId,String fileName,String originalName,int parentId,int typeId);
+    //void addResourceUser(int u_id,int resourceId,String fileName,String originalName,int parentId,int typeId);
 
     /**
      * 根据文件类型来查询类型文件id

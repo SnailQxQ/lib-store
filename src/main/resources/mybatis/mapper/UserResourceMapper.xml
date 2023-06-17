@@ -106,4 +106,10 @@
         FROM user_resource
         WHERE d_flag = #{isRecycle} AND u_id = #{userId} AND collect = #{collect};
     </select>
+
+
+    <!--table : user_resource -->
+    <insert id="addResourceUser">
+        INSERT INTO user_resource(u_id,r_id,fileName,originalName,parentId,typeId) VALUES( #{u_id},#{resourceId},#{fileName},#{originalName},#{parentId},#{typeId} )
+    </insert>
 </mapper>
