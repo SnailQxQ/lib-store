@@ -7,6 +7,7 @@ import com.turbine.tnd.dto.RNavigationDTO;
 import com.turbine.tnd.dto.ShareResourceDTO;
 import com.turbine.tnd.service.FileService;
 import com.turbine.tnd.service.UserService;
+import com.turbine.tnd.service.VideoProgressService;
 import com.turbine.tnd.utils.MD5Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,8 @@ public class test1 {
     public RedisTemplate redisTemplate;
     @Autowired
     public FolderDao fdao;
+    @Autowired
+    VideoProgressService vs;
 
 
     @Test
@@ -161,8 +164,8 @@ public class test1 {
 
     @Test
     public void test11(){
-        User admin = udao.inquireByName("admin");
-        System.out.println(admin);
+        double progress = vs.getProgress("9dd428ea027aecba43c4296c09eeffcd");
+        System.out.println(progress);
     }
 
 

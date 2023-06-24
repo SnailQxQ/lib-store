@@ -37,6 +37,8 @@ public class fileInterceptor implements HandlerInterceptor {
         boolean flag = true;
         String f_url = null;
 
+        if( requestURI.contains("/resource/socket"))return true;
+
         if( (requestURI.contains("/user/resource/share") && !requestURI.contains("transfer") )
                 || requestURI.contains("/user/resource/shared")
                 || requestURI.contains("/user/resource/file/expire") )return true;

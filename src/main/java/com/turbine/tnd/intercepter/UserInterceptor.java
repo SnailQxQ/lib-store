@@ -26,6 +26,9 @@ public class UserInterceptor implements HandlerInterceptor {
         String userName = null;
         boolean flag = false;
         String url = request.getRequestURI();
+        //TODO:临时测试
+        if( url.contains("/resource/socket"))return true;
+
 
         if( (url.contains("/user/resource/share") && !url.contains("transfer") )
             || url.contains("/user/register")

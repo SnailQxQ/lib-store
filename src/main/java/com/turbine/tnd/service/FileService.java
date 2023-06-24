@@ -31,11 +31,11 @@ public class FileService {
 
 
 
-    public Message undoSlicUpload(FileRequestDTO frdto) {
+   /* public Message undoSlicUpload(FileRequestDTO frdto) {
         Message message = new Message(ResultCode.SUCCESS);
         supload.deleteTempFile(frdto);
         return message;
-    }
+    }*/
 
     //移除过期时间的临时文件
     public void removeOverDueTempFile() {

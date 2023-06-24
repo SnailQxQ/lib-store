@@ -43,7 +43,7 @@ public interface ResourceDao {
 
     /**
      * 根据文件名查询文件是否已经存在
-     * @param fileName
+     * @param fileName hashID
      * @return
      */
     Resource inquireByName(String fileName);

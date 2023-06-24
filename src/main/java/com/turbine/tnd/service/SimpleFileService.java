@@ -3,10 +3,11 @@ package com.turbine.tnd.service;
 import com.turbine.tnd.bean.Resource;
 import com.turbine.tnd.bean.ResourceType;
 import com.turbine.tnd.bean.UserResource;
-import com.turbine.tnd.config.UploadFileConfig;
 import com.turbine.tnd.dao.ResourceDao;
 import com.turbine.tnd.dao.UserResourceDao;
 import com.turbine.tnd.utils.CommandUtils;
+import com.turbine.tnd.utils.FileUtils;
+import com.turbine.tnd.utils.VideoProgressUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class SimpleFileService{
 
     //根目录 /static
     @Value("${file.upload.fileFolder}")
-    String fileFolder ;
+    String baseFolder ;
     @Value("${file.upload.baseDir}")
     String baseDir;
 
@@ -66,8 +67,8 @@ public class SimpleFileService{
                 //创建按照这个目录创建，传输的时候会自带上设置的前缀 先用临时文件创建来解决
                 String dir = File.separator+date.getYear()+File.separator+date.getMonth()+File.separator+date.getDayOfMonth();
 
-                String path = fileFolder+dir+File.separator+name.toString()+ File.separator+name.toString()+suffix;
-                String parent = baseDir+fileFolder+dir+File.separator+name.toString();
+                String path = baseFolder+dir+File.separator+name.toString()+ File.separator+name.toString()+suffix;
+                String parent = baseDir+baseFolder+dir+File.separator+name.toString();
 
                 File target = new File(parent,name.toString()+suffix);
 
@@ -102,7 +103,9 @@ public class SimpleFileService{
                                 e.printStackTrace();
                             }
                         }
-                        CommandUtils.processVideo(baseDir+path,parent+File.separator+name.toString()+".m3u8");
+                        //TODO:test
+                        VideoProgressUtils.processVideo(baseDir+path,parent+File.separator+name.toString()+".m3u8",
+                                parent+File.separator+name.toString()+".log");
                     }).start();
                 }
             }else {

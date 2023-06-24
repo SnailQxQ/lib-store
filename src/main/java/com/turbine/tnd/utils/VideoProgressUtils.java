@@ -1,17 +1,8 @@
 package com.turbine.tnd.utils;
 
-import jdk.internal.util.xml.impl.Input;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.Server;
 
 import java.io.*;
-import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Turbine
  * @Description:
@@ -95,8 +86,23 @@ public class VideoProgressUtils {
 
     //hh:mm:ss => seconds
     public static double transferTime(String time){
-        String[] split = time.split(":");
-        return Double.parseDouble(split[0])*3600  + Double.parseDouble(split[1])*60 + Double.parseDouble(split[2]);
+
+        double h = 0.0;
+        double m = 0.0;
+        double s = 0.0;
+        try{
+            String[] split = time.split(":");
+            h = Double.parseDouble(split[0])*3600;
+            m = Double.parseDouble(split[1])*60;
+            s = Double.parseDouble(split[2]);
+        }catch (Exception e){
+            //e.printStackTrace();
+            h = 0.0;
+            m = 0.0;
+            s = 0.0;
+        }
+
+        return h+m+s;
     }
 
     /**
@@ -108,7 +114,7 @@ public class VideoProgressUtils {
      * @return double
      * @date 2023/6/18 19:18
      */
-    public static double calProgress(File logFile,double allTime) throws IOException {
+    private static double calProgress(File logFile,double allTime) throws IOException {
         double progress = 0.0;
         String line;
         try (FileInputStream is = new FileInputStream(logFile);
@@ -136,10 +142,10 @@ public class VideoProgressUtils {
      * @param
      * @param LogPath  日志文件路径
      * @param videoPath 视频文件路径
-     * @return void
+     * @return double
      * @date 2023/6/18 18:15
      */
-    public static void getVideoProgress(String LogPath,String videoPath) throws IOException, InterruptedException {
+    public static double getVideoProgress(String LogPath,String videoPath) {
         double allTime = getAllTime(videoPath);
         File file = new File(LogPath);
         int i = 1;
@@ -162,30 +168,52 @@ public class VideoProgressUtils {
 
         if(!file.exists() && i == 4){
             log.debug("获取解码文件重试失败！");
-            return;
+            return -1;
         }
+
         double progress = 0;
-        while(progress != 100){
+        try {
             progress = calProgress(file,allTime);
+            if(progress > 95.8) progress = 100;
             System.out.println( progress + "%" );
             System.out.println("-=============================-");
-            Thread.sleep(500);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        return progress;
     }
 
 
     public static void main(String[] args) throws Exception {
-        System.out.println("接收端启动！");
-        DatagramSocket Server = new DatagramSocket(new InetSocketAddress("127.0.0.1", 6666));
-        byte[] data = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(data,0,data.length);
-        Server.receive(packet);
+//        System.out.println("接收端启动！");
+//        DatagramSocket Server = new DatagramSocket(new InetSocketAddress("127.0.0.1", 6666));
+//        byte[] data = new byte[1024];
+//        DatagramPacket packet = new DatagramPacket(data,0,data.length);
+//        Server.receive(packet);
+//
+//        String rec = new String(packet.getData(), 0, packet.getLength());
+//
+//        System.out.println(rec);
+//        InetAddress inetAddress = Server.getInetAddress();
+//        System.out.println(inetAddress.toString());
 
-        String rec = new String(packet.getData(), 0, packet.getLength());
+        String logPath = "D:\\static\\2023\\FEBRUARY\\18\\9dd428ea027aecba43c4296c09eeffcd\\9dd428ea027aecba43c4296c09eeffcd.log";
+        String videoPath = "D:\\static\\2023\\FEBRUARY\\18\\9dd428ea027aecba43c4296c09eeffcd\\9dd428ea027aecba43c4296c09eeffcd.mp4";
+        String targertPath = "D:\\static\\2023\\FEBRUARY\\18\\9dd428ea027aecba43c4296c09eeffcd\\";
 
-        System.out.println(rec);
-        InetAddress inetAddress = Server.getInetAddress();
-        System.out.println(inetAddress.toString());
+        new Thread(()->{
+            processVideo(videoPath,targertPath,logPath);
+        }).start();
+
+        new Thread(()->{
+            double progress = 0.0;
+            while (progress != 100){
+                progress = getVideoProgress(logPath, videoPath);
+            }
+        }).start();
+
+
     }
 
 

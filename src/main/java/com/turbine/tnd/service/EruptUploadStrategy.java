@@ -2,6 +2,7 @@ package com.turbine.tnd.service;
 
 import com.turbine.tnd.bean.TempFile;
 import com.turbine.tnd.dto.FileRequestDTO;
+import com.turbine.tnd.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,7 +50,7 @@ public class EruptUploadStrategy extends SliceFileTemplate {
         int n = param.getTotalChunkNum();
         int idx = param.getOriginalName().lastIndexOf(".");
         String suffix = param.getOriginalName().substring(idx);
-        String dir = this.baseDir+FileUtils.getPath(this.fileFolder);
+        String dir = this.baseDir+ FileUtils.getPath(this.fileFolder);
         //写入到 static/。。。。方便后续分片都写到一个以该资源命名的文件夹中
         String result_path = dir+File.separator+param.getFileName()+File.separator+param.getFileName()+suffix;
         File result = new File(result_path);

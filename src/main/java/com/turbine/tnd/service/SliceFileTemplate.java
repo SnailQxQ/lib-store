@@ -9,9 +9,7 @@ import com.turbine.tnd.dto.FileDownLoadDTO;
 import com.turbine.tnd.dto.FileUploadDTO;
 import com.turbine.tnd.dto.FileRequestDTO;
 import com.turbine.tnd.dto.ResourceDTO;
-import com.turbine.tnd.utils.CommandUtils;
-import com.turbine.tnd.utils.Filter;
-import com.turbine.tnd.utils.FilterFactor;
+import com.turbine.tnd.utils.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -288,11 +284,12 @@ public abstract class SliceFileTemplate implements SliceFileService {
                 }
                 int i = location.lastIndexOf('/');
                 String target = location.substring(0,i)+File.separator+param.getFileName()+".m3u8";
-                String path = location;
+                String videoPath = location;
+                String logPath = location.substring(0,i)+File.separator+param.getFileName()+".log";
                 if( ".mp4".equals(suffix) ){
                     //文件第一次传输要时间，传输完成后才进行分片
                     new Thread(()->{
-                        CommandUtils.processVideo(path,target);
+                        VideoProgressUtils.processVideo(videoPath,target,logPath);
                     }).start();
                 }
 
